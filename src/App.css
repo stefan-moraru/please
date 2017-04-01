@@ -1,24 +1,133 @@
-.App {
-  text-align: center;
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Montserrat', sans-serif;
+  background: #f7f7f7;
 }
 
-.App-logo {
-  animation: App-logo-spin infinite 20s linear;
-  height: 80px;
+.logo {
+  width: 100px;
+  position: fixed;
+  top: 15px;
+  left: 20px;
 }
 
-.App-header {
-  background-color: #222;
-  height: 150px;
+.component-Input {
+  margin-bottom: 25px;
+  width: 50vw;
+}
+
+h3, h4 {
+  font-weight: 300;
+}
+
+h1 {
+  font-size: 40px;
+  font-weight: 300;
+}
+
+.component-Input input {
+  width: 90%;
+  font-size: 40px;
+  padding: 10px;
+  border: none;
+  border-bottom: solid 2px #c9c9c9;
+  transition: border 0.3s;
+  outline-width: 0;
+  padding-left: 0px;
+  background: transparent;
+}
+
+.component-Input__send {
+  width: 10%;
+  font-size: 24px;
+  padding-left: 15px;
+  cursor: pointer;
+  color: rgb(100, 100, 100);
+  transition-duration: 0.4s;
+}
+
+.component-Input__send:hover {
+  color: rgb(30, 30, 30);
+}
+
+.component-Input input {
+  border-bottom: solid 2px #969696;
+}
+
+html, body, #root, .component-App {
+  height: 100%;
+}
+
+.component-App {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  flex-direction: column;
+}
+
+.component-Conversation {
+  width: 50vw;
+}
+
+.component-Conversation__step {
+  background-color: #ECE5DD;
+  background-color: #F9A03F;
+  background-color: #8FB996;
   padding: 20px;
+  border-radius: 5px;
+  position: relative;
+}
+.component-Conversation__step::before {
+  content: '';
+  display: block;
+  width: 10px;
+  height: 10px;
+  transform: rotate(45deg);
+  background-color: #8FB996;
+  position: absolute;
+  left: -5px;
+  top: 50%;
+  margin-top: -5px;
+}
+
+.component-Conversation__step__bot {
+  width: 50px;
+  height: 50px;
+  position: absolute;
+  left: -80px;
+  top: 50%;
+  margin-top: -25px;
+}
+
+.component-Conversation__step__bot img {
+  width: 100%;
+  height: 100%;
+  border-radius: 100%;
+  border: 1px solid #8FB996;
+}
+
+.u-m-0 {
+  margin: 0px;
+}
+
+.btn {
+  padding: 10px;
+  border: 0px;
+  background-color: #2ecc71;
   color: white;
+  border-radius: 5px;
+  border: solid 1px #c9c9c9;
+  margin-right: 10px;
 }
 
-.App-intro {
-  font-size: large;
+.component-Conversation__step__options {
 }
 
-@keyframes App-logo-spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+.component-examples {
+  width: 50vw;
+  opacity: 0.3;
 }
