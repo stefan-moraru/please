@@ -5,6 +5,10 @@ import './App.css';
 
 //TODO: Use Monstreall font (same one as photon web setup)
 //TODO: Make the app work offline (+++++)
+//TODO: Improve logo
+//TODO: Make input & button the same length as the conversation box
+//TODO: Name & Favicon
+//TODO: SAVE CONVERSATION! TAKE THE RENDERED CONTENT AND PUSH IT INTO AN ARRAY IN STATE
 
 /*
   App
@@ -30,7 +34,7 @@ import './App.css';
 class Input extends Component {
   // TODO: Submit on enter
   state = {
-    inputText: "I want to buy iphone", //TODO: null,
+    inputText: "I want to buy an iphone", //TODO: null,
     inputImage: null
   };
 
@@ -57,7 +61,6 @@ class Input extends Component {
   }
 
   onKeyPress(event) {
-    console.log(event);
     if (event.charCode === 13) {
       this.onInputChange();
     }
@@ -86,13 +89,20 @@ class Settings extends Component {
     this.props.onSettingsChange({
       plugins: {
         //TODO: Location app, npl has .places()
+        //TODO: visit #Noun will show google maps
+        //TODO: Add 'cancel' as conversation step to represent canceling
         'url': {
           title: 'URL assitant', //TODO: Find something prettier (maybe personal)
           examples: ['open www.fiicode.com'],
           match: {
             'open $param1Url': {
               goToConversationStep: 1,
-              goToConversationParams: [ '$param1' ]
+              goToConversationParams: [ '$param1' ],
+              extraMatches: [
+                'go to $param1Url',
+                'link $param1Url',
+                'url $param1Url'
+              ]
             }
           },
           conversation: {
@@ -102,18 +112,16 @@ class Settings extends Component {
               },
               options: {
                 1: {
-                  text: 'Go to url',
+                  text: 'Go to $param1',
+                  href: '$param1',
                   goToConversationStep: 2,
-                  goToConversationParams: [
-                    {
-                      name: '$param2',
-                      value: 'emag'
-                    }
-                  ]
-                },
-                2: {
-                  text: 'Go to food url'
+                  goToConversationParams: [ '$param1' ]
                 }
+              }
+            },
+            2: {
+              text: {
+                content: 'We have opened $param1. Thank you for using this plugin!'
               }
             }
           }
@@ -134,7 +142,7 @@ class Settings extends Component {
             1: {
               text: {
                 // TODO: Maybe no 'content' key here, text directly in texx
-                content: 'Shopping plugin. You are trying to buy $param1'
+                content: 'You are trying to buy a $param1'
               },
               options: {
                 1: {
@@ -190,9 +198,10 @@ class Conversation extends Component {
   }
 
   replaceParamsInString(string, params) {
+    console.log('replaceParamsInString', string, params);
     if (params) {
       params.forEach(param => {
-        if (string.indexOf(param.name)) {
+        if (string.indexOf(param.name) !== -1) {
           string = string.replace(new RegExp(`\\${param.name}`, 'g'), param.value);
         }
       });
@@ -217,10 +226,10 @@ class Conversation extends Component {
       } else {
         const no = parseInt(x.replace(/\$param/g, ''));
 
-        if (results[no - 1]) {
+        if (results && results[no - 1]) {
           param = {
             name: x,
-            value: results[no - 1].singular || results[no - 1]
+            value: results[no - 1].singular || results[no - 1].normal || results[no - 1]
           };
         }
       }
@@ -234,6 +243,39 @@ class Conversation extends Component {
     return result;
   }
 
+  prettyFormatString(string) {
+    // Remove articles
+    string = string.replace(/\ (a|an|the)\ /g, ' ');
+
+    return string;
+  }
+
+  matchFromString(match, matchKey, text, plugin, pluginKey) {
+    let matchResult = nlp(text).match(matchKey);
+    let result = [];
+
+    result = result.concat(matchResult.nouns().data());
+    result = result.concat(matchResult.urls().data());
+
+    let matchForSort = {
+      length: result.length,
+      plugin: plugin,
+      name: pluginKey
+    };
+
+    if (match.goToConversationStep) {
+      matchForSort.step = match.goToConversationStep;
+    }
+
+    if (match.goToConversationParams) {
+      matchForSort.params = this.constructParamsFromGoToConversationParams(match.goToConversationParams, result);
+    }
+
+    return matchForSort;
+  }
+
+  // TODO: Move from here to somewhere like "Start plugin"
+  // Because this will be called on setState, it can lose state
   componentWillReceiveProps(nextProps) {
     if (!nextProps.input || !nextProps.settings) {
       return;
@@ -246,35 +288,24 @@ class Conversation extends Component {
 
       for (let matchKey in plugin.match) {
         const match = plugin.match[matchKey];
-        // TODO: We can have things like urls, not only nouns
-        //const type = ('#' + (matchKey.match(/\$param[0-9](Url|Noun)) || [])[0] || 'Noun');
         const matchKeyWithoutParams = matchKey.replace(/\$param[0-9]/g, '#');
-        // TODO: Move nextProps.input.text in a variable
-        let matchResult = nlp(nextProps.input.text).match(matchKeyWithoutParams);
-        let result = [];
-
-        result = result.concat(matchResult.nouns().data());
-        result = result.concat(matchResult.urls().data());
-
-        let matchForSort = {
-          length: result.length,
-          plugin: plugin,
-          name: pluginKey
-        };
-
-        if (match.goToConversationStep) {
-          matchForSort.step = match.goToConversationStep;
-        }
-
-        if (match.goToConversationParams) {
-          matchForSort.params = this.constructParamsFromGoToConversationParams(match.goToConversationParams, result);
-        }
+        const text = this.prettyFormatString(nextProps.input.text);
+        const matchForSort = this.matchFromString(match, matchKeyWithoutParams, text, plugin, pluginKey);
 
         matches.push(matchForSort);
+
+        if (match.extraMatches) {
+          console.log('Extra matches');
+          match.extraMatches.forEach(extraMatch => {
+            const extraMatchForSort = this.matchFromString(match, extraMatch.replace(/\$param[0-9]/g, '#'), text, plugin, pluginKey);
+
+            console.log(match, extraMatch, text, plugin, pluginKey, extraMatchForSort);
+
+            matches.push(extraMatchForSort);
+          });
+        }
       }
     }
-
-    console.log('matches', matches);
 
     const bestPlugin = matches.sort((a, b) => a.length < b.length)[0];
 
@@ -329,26 +360,61 @@ class Conversation extends Component {
     return contentText;
   }
 
+  renderOption(params, option) {
+    const text = this.replaceParamsInString(option.text, params);
+
+    let optionContent = text;
+
+    let optionProps = {
+      className: 'btn',
+      onClick: this.goToConversationStep.bind(this, option)
+    };
+
+    let renderedOption = (
+      <button {...optionProps}>
+        {optionContent}
+      </button>
+    );
+
+    if (option.href) {
+      optionProps.target = '_blank';
+      optionProps.href = this.replaceParamsInString(option.href, params);
+
+      if (optionProps.href.indexOf('http') === -1) {
+        optionProps.href = 'http://' + optionProps.href;
+      }
+
+      renderedOption = (
+        <a {...optionProps}>
+          {optionContent}
+        </a>
+      );
+    }
+
+    return renderedOption;
+  }
+
   renderConversationStepOptions(options, params) {
     let rendered = null;
 
     if (options) {
+      options.cancel = {
+        text: 'Cancel',
+        goToConversationStep: 'cancel'
+      };
+
       options = Object.keys(options).map(key => options[key]);
 
-      rendered = options.map(option => {
-        const text = this.replaceParamsInString(option.text, params);
+      console.log(options);
 
-        return (
-          <button className="btn" onClick={this.goToConversationStep.bind(this, option)}>
-            {text}
-          </button>
-        );
+      rendered = options.map(option => {
+        return this.renderOption(params, option);
       });
     }
 
     return (
       <div className="component-Conversation__step__options">
-        rendered
+        {rendered}
       </div>
     );
   }
@@ -419,8 +485,6 @@ class Conversation extends Component {
     const currentPlugin = this.renderPlugin(this.state.currentPlugin);
     return (
       <div className="component-Conversation">
-        <h3>{this.state.currentPlugin ? (this.cheer() + " Let's talk with the " + this.state.currentPlugin.name) : null}.</h3>
-
         {currentPlugin}
       </div>
     );
