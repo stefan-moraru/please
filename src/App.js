@@ -3,13 +3,187 @@ import nlp from 'compromise';
 import logo from './please_logo.png';
 import './App.css';
 
+
+const config = {
+  syntax: {
+    //TODO: param: \$param
+  }
+};
+
+const examplesFromPlugins = (plugins) => {
+  let examples = null;
+
+  if (plugins) {
+    examples = Object.keys(plugins)
+    .map(key => plugins[key])
+    .reduce((a, b) => (a.examples || []).concat(b.examples || []));
+  }
+
+  return examples;
+};
+
+const stringWithoutArticles = (string) => {
+  return string.replace(/\ (a|an|the)\ /g, ' ');
+};
+
+
+const substituteParamsInString = (params = [], string = '') => {
+  return params.reduce((str, param) => {
+    return string.replace(new RegExp(`\\${param.name}`, 'g'), param.value);
+  }, string);
+};
+
+const paramsWithValuesFromResult = (params, results) => {
+  return params.map(param => {
+    if (!param.name) {
+      const paramNumber = parseInt(param.replace(/\$param/g, ''));
+      const result = (results && results[paramNumber - 1]) ? results[paramNumber - 1] : null;
+
+      if (result) {
+        param = {
+          name: param,
+          value: result.singular || result.normal || result
+        };
+      }
+    }
+
+    return param;
+  });
+};
+
+const matchFromString = (match, input, plugin, pluginKey) => {
+      //const matchKeyWithoutParams = matchKey.replace(/\$param[0-9]/g, '#');
+      /*
+      'shopping'
+      match: 'I want to buy ''I want to buy an $param1Noun'
+      'I want to buy an $param1Url'
+      'I want to buy an $param1RegExp\\b\\d{5}\\b'
+            'I want to buy $param1Noun': {
+              // Goes to step 1
+              step: 1,
+              params: [ '$param1' ]
+            },
+            'I want to buy $param1Noun from $param2Noun': {
+
+
+      Ce am:
+        Recommend book {RegExp\\b\\d{5}\\b} from {Noun}
+      Ce primesc:
+        Recommend book 12345 from Carturesti
+      Dupa split:
+        ["Recommend", "book", "12345", "from", "Carturesti"]
+        ["Recommend", "book", "{Reg..}", "from", "{Noun}"]
+
+      Vreau sa ajung la:
+        $param1 = 12345
+        $param2 = Carturesti
+
+      */
+  let matchResult = nlp(text).match(matchKey);
+  let result = [];
+
+
+      const text = stringWithoutArticles(input);
+
+  text.split(/\{(.+?)\}/g);
+
+  /*
+    Noun
+    Url
+    RegExp
+  */
+
+  result = result.concat(matchResult.nouns().data());
+  result = result.concat(matchResult.urls().data());
+
+  console.log('here', result);
+
+  let matchForSort = {
+    length: result.length,
+    plugin: plugin,
+    name: pluginKey
+  };
+
+  if (match.step) {
+    matchForSort.step = match.step;
+  }
+
+  if (match.params) {
+    matchForSort.params = this.constructParamsFromParams(match.params, result);
+  }
+
+  return matchForSort;
+}
+
+const pluginMatchesForInput = (plugins, input) => {
+  return Object.keys(plugins)
+  .map(pluginKey => {
+    const plugin = nextProps.settings.plugins[pluginKey];
+
+    return Object.keys(plugin.match)
+    .map(matchKey => {
+      const match = plugin.match[matchKey];
+      let res = matchFromString(match, input, plugin, pluginKey);
+
+      if (match.extraMatches) {
+        res = res.concat(match.extraMatches.map(extraMatch => {
+          return matchFromString(match, input, plugin, pluginKey);
+        }));
+      }
+
+      return res;
+    });
+  });
+};
+
+/*
+- ISBN12345
+Cool! This is a book about Robin Hood
+Did you like it?
+- Yes!
+Nice, lets see what other books about Robin Hood I can find
+...
+I found BookA, BookB, BookC
+Do you like any of them?
+- I like BookA
+EXEMPLU ASTA DE RULAT!! I'm look for a netflix movie to watch / Sure! What're you in the mood for / Something like X / Checkout ABC
+*/
+/*
+Identifica pe baza copertei, codului de bare categorii de obiecte
+Folosind identificarea, se recomanda resure alternative de interes in functie de:
+  - Disponsibiliatea in alt format (varianta pdf / epub), alte limbi
+  - Pret
+  - Calitate
+  - Similaritate
+  - Preferinte alte utilizatorului
+*/
+//TODO:RECOMANDARIIII!!!!!
+//TODO:RECOMANDARIIII!!!!!
+//TODO:RECOMANDARIIII!!!!!
+//TODO:RECOMANDARIIII!!!!!
+//TODO:RECOMANDARIIII!!!!!
+//TODO:RECOMANDARIIII!!!!!
+//TODO:RECOMANDARIIII!!!!!
+//TODO:RECOMANDARIIII!!!!!
 //TODO: Use Monstreall font (same one as photon web setup)
 //TODO: Make the app work offline (+++++)
 //TODO: Improve logo
 //TODO: Make input & button the same length as the conversation box
 //TODO: Name & Favicon
 //TODO: SAVE CONVERSATION! TAKE THE RENDERED CONTENT AND PUSH IT INTO AN ARRAY IN STATE
-
+//TODO: Default option type is a button, but it should also have image / text input. They should bind to a $param
+//TODO: customizableParams (list of params that can be passed & stored in Firebase, from the settings view)
+//TODO: Demo for Particle with a plugin (emit a http event, turn on a internet button led rid)
+//TODO: Add "set=$paramX" option to options, they will update the value of the param in state { "set=$paramX,1234",}
+//TODO: Make it more conversational
+/*
+I want to buy a horse
+Show me information about Romania
+Exchange 1 leu in euro
+JSON encode { abc: 1 }
+Travel to Ibiza
+Find me an apartment with 3 rooms
+*/
 /*
   App
     Input
@@ -32,9 +206,8 @@ import './App.css';
 */
 
 class Input extends Component {
-  // TODO: Submit on enter
   state = {
-    inputText: "I want to buy an iphone", //TODO: null,
+    inputText: "12345", //TODO: null,
     inputImage: null
   };
 
@@ -91,13 +264,28 @@ class Settings extends Component {
         //TODO: Location app, npl has .places()
         //TODO: visit #Noun will show google maps
         //TODO: Add 'cancel' as conversation step to represent canceling
+        'book': {
+          title: 'Book recommendation',
+          examples: ['978-0141329383'],
+          match: {
+            '$param1RegExp/\bd{5}\b': {
+              step: 1,
+              params: [ '$param1' ]
+            }
+          },
+          conversation: {
+            1: {
+              text: 'Hello! Looks like your are trying to find something related to a book'
+            }
+          }
+        },
         'url': {
           title: 'URL assitant', //TODO: Find something prettier (maybe personal)
           examples: ['open www.fiicode.com'],
           match: {
             'open $param1Url': {
-              goToConversationStep: 1,
-              goToConversationParams: [ '$param1' ],
+              step: 1,
+              params: [ '$param1' ],
               extraMatches: [
                 'go to $param1Url',
                 'link $param1Url',
@@ -114,8 +302,8 @@ class Settings extends Component {
                 1: {
                   text: 'Go to $param1',
                   href: '$param1',
-                  goToConversationStep: 2,
-                  goToConversationParams: [ '$param1' ]
+                  step: 2,
+                  params: [ '$param1' ]
                 }
               }
             },
@@ -131,8 +319,8 @@ class Settings extends Component {
           match: {
             'I want to buy $param1Noun': {
               // Goes to step 1
-              goToConversationStep: 1,
-              goToConversationParams: [ '$param1' ]
+              step: 1,
+              params: [ '$param1' ]
             },
             'I want to buy $param1Noun from $param2Noun': {
               // Goes to step 2 (showing only from a company)
@@ -147,17 +335,17 @@ class Settings extends Component {
               options: {
                 1: {
                   text: 'Buy $param1 from emag',
-                  // TODO: Maybe goToStep instead of goToConversationStep
-                  goToConversationStep: 2,
-                  goToConversationParams: [
+                  // TODO: Maybe goToStep instead of step
+                  step: 2,
+                  params: [
                     {
                       name: '$param2',
                       value: 'emag'
                     }
                   ]
                 },
-                2: { text: 'Buy $param1 from pcgarage', goToConversationStep: 2 },
-                3: { text: 'No buy eine $param1, no bueno', goToConversationStep: 3}
+                2: { text: 'Buy $param1 from pcgarage', step: 2 },
+                3: { text: 'No buy eine $param1, no bueno', step: 3}
                 // TODO: Add default Cancel option
               }
             },
@@ -194,142 +382,48 @@ class Conversation extends Component {
     currentPlugin: null
   };
 
-  componentDidMount() {
+
+
+
+  constructParamsFromParams(params, results) {
   }
 
-  replaceParamsInString(string, params) {
-    console.log('replaceParamsInString', string, params);
-    if (params) {
-      params.forEach(param => {
-        if (string.indexOf(param.name) !== -1) {
-          string = string.replace(new RegExp(`\\${param.name}`, 'g'), param.value);
-        }
-      });
-    }
-
-    return string;
-  }
-
-  constructParamsFromGoToConversationParams(params, results) {
-    let result = [];
-
-    if (!params) {
-      return null;
-    }
-
-    params.forEach(x => {
-      let param = null
-
-      // Already formatted as pretty param
-      if (x.name) {
-        param = x;
-      } else {
-        const no = parseInt(x.replace(/\$param/g, ''));
-
-        if (results && results[no - 1]) {
-          param = {
-            name: x,
-            value: results[no - 1].singular || results[no - 1].normal || results[no - 1]
-          };
-        }
-      }
-
-      if (param) {
-        // TODO: Write as map, instead of forEach + push
-        result.push(param);
-      }
-    });
-
-    return result;
-  }
-
-  prettyFormatString(string) {
-    // Remove articles
-    string = string.replace(/\ (a|an|the)\ /g, ' ');
-
-    return string;
-  }
-
-  matchFromString(match, matchKey, text, plugin, pluginKey) {
-    let matchResult = nlp(text).match(matchKey);
-    let result = [];
-
-    result = result.concat(matchResult.nouns().data());
-    result = result.concat(matchResult.urls().data());
-
-    let matchForSort = {
-      length: result.length,
-      plugin: plugin,
-      name: pluginKey
-    };
-
-    if (match.goToConversationStep) {
-      matchForSort.step = match.goToConversationStep;
-    }
-
-    if (match.goToConversationParams) {
-      matchForSort.params = this.constructParamsFromGoToConversationParams(match.goToConversationParams, result);
-    }
-
-    return matchForSort;
-  }
 
   // TODO: Move from here to somewhere like "Start plugin"
   // Because this will be called on setState, it can lose state
   componentWillReceiveProps(nextProps) {
-    if (!nextProps.input || !nextProps.settings) {
+    const input = nextProps.input;
+    const settings = nextProps.settings;
+
+    if (!input || !settings || (settings && !settings.plugins)) {
       return;
     }
 
-    let matches = [];
-
-    for (const pluginKey in nextProps.settings.plugins) {
-      const plugin = nextProps.settings.plugins[pluginKey];
-
-      for (let matchKey in plugin.match) {
-        const match = plugin.match[matchKey];
-        const matchKeyWithoutParams = matchKey.replace(/\$param[0-9]/g, '#');
-        const text = this.prettyFormatString(nextProps.input.text);
-        const matchForSort = this.matchFromString(match, matchKeyWithoutParams, text, plugin, pluginKey);
-
-        matches.push(matchForSort);
-
-        if (match.extraMatches) {
-          console.log('Extra matches');
-          match.extraMatches.forEach(extraMatch => {
-            const extraMatchForSort = this.matchFromString(match, extraMatch.replace(/\$param[0-9]/g, '#'), text, plugin, pluginKey);
-
-            console.log(match, extraMatch, text, plugin, pluginKey, extraMatchForSort);
-
-            matches.push(extraMatchForSort);
-          });
-        }
-      }
-    }
-
+    const plugins = settings.plugins;
+    const matches = pluginMatchesForInput(plugins, input);
     const bestPlugin = matches.sort((a, b) => a.length < b.length)[0];
 
-    if (bestPlugin.length === 0) {
-      this.setState({
-        currentPlugin: null
-      });
-    } else  {
-      this.setState({
-        currentPlugin: Object.assign({}, {
-          name: bestPlugin.name,
-          step: bestPlugin.step ? bestPlugin.step : 1,
-          params: bestPlugin.params ? bestPlugin.params : null
-        }, bestPlugin.plugin)
-      });
+    let currentPlugin = null;
+
+    if (bestPlugin.length >= 0) {
+      currentPlugin = Object.assign({}, {
+        name: bestPlugin.name,
+        step: bestPlugin.step ? bestPlugin.step : 1,
+        params: bestPlugin.params ? bestPlugin.params : null
+      }, bestPlugin.plugin);
     }
+
+    this.setState({
+      currentPlugin: currentPlugin
+    });
   }
 
-  goToConversationStep(option) {
+  step(option) {
     let plugin = this.state.currentPlugin;
 
     // TODO: Here, add params? (overwritting current params)
-    plugin.step = option.goToConversationStep;
-    const newParams = this.constructParamsFromGoToConversationParams(option.goToConversationParams);
+    plugin.step = option.step;
+    const newParams = this.constructParamsFromParams(option.params);
 
     if (plugin.params) {
       // Merge newParams with plugin.params TODO: Improve
@@ -348,7 +442,7 @@ class Conversation extends Component {
     let contentText = null;
 
     if (text) {
-      text.content = this.replaceParamsInString(text.content, params);
+      text.content = substituteParamsInString(params, text.content);
 
       contentText = (
         <div>
@@ -361,13 +455,13 @@ class Conversation extends Component {
   }
 
   renderOption(params, option) {
-    const text = this.replaceParamsInString(option.text, params);
+    const text = substituteParamsInString(params, option.text);
 
     let optionContent = text;
 
     let optionProps = {
       className: 'btn',
-      onClick: this.goToConversationStep.bind(this, option)
+      onClick: this.step.bind(this, option)
     };
 
     let renderedOption = (
@@ -378,7 +472,7 @@ class Conversation extends Component {
 
     if (option.href) {
       optionProps.target = '_blank';
-      optionProps.href = this.replaceParamsInString(option.href, params);
+      optionProps.href = substituteParamsInString(params, option.href);
 
       if (optionProps.href.indexOf('http') === -1) {
         optionProps.href = 'http://' + optionProps.href;
@@ -400,12 +494,10 @@ class Conversation extends Component {
     if (options) {
       options.cancel = {
         text: 'Cancel',
-        goToConversationStep: 'cancel'
+        step: 'cancel'
       };
 
       options = Object.keys(options).map(key => options[key]);
-
-      console.log(options);
 
       rendered = options.map(option => {
         return this.renderOption(params, option);
@@ -469,18 +561,6 @@ class Conversation extends Component {
     return content;
   }
 
-  cheer() {
-    const cheers = [
-      'Awesome!', 'Amazing!', 'Yusss!', 'Yay!', 'Great!', 'Brilliant!',
-      'Cool!', 'Fabulous!', 'Fantastic!', 'Groovy!', 'Marvelous!', 'Sweet!',
-      'You rock!'
-    ];
-
-    const no = Math.floor(Math.random() * cheers.length);
-
-    return cheers[no];
-  }
-
   render() {
     const currentPlugin = this.renderPlugin(this.state.currentPlugin);
     return (
@@ -495,27 +575,21 @@ class App extends Component {
   state = {
     input: null,
     settings: null,
-    // TODO: Create component with this rotating text stuff (ask Gabriel)
+    //TODO: Create component with this rotating text stuff (ask Gabriel)
     examplesIndex: 0,
     examplesInterval: null
   };
 
   onInputChange(input) {
-    // input.text, input.image
+    //TODO: input.text, input.image
     this.setState({
       input: input
     });
   }
 
   onSettingsChange(settings) {
-    // settings.plugins, settings.preferences
-    let examples = null;
-
-    if (settings && settings.plugins) {
-      examples = Object.keys(settings.plugins)
-      .map(key => settings.plugins[key])
-      .reduce((a, b) => (a.examples || []).concat(b.examples || []));
-    }
+    //TODO: settings.plugins, settings.preferences
+    let examples = examplesFromPlugins(settings ? settings.plugins : null)
 
     this.setState({
       settings: settings,
@@ -542,12 +616,14 @@ class App extends Component {
   }
 
   render() {
+    const example = this.state.examples ? ('Example: ' + this.state.examples[this.state.examplesIndex]) : null;
+
     return (
       <div className="component-App">
         <img src={logo} className="logo" />
         <Input onInputChange={this.onInputChange.bind(this)}/>
         <div className="component-examples">
-          <h4 className="u-m-0">{this.state.examples ? ('Examples: ' + this.state.examples[this.state.examplesIndex]) : null}</h4>
+          <h4 className="u-m-0">{example}</h4>
         </div>
         <Settings onSettingsChange={this.onSettingsChange.bind(this)} />
         <Conversation input={this.state.input} settings={this.state.settings} />
