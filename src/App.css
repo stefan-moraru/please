@@ -5,18 +5,6 @@ body {
   background: #f7f7f7;
 }
 
-.logo {
-  width: 100px;
-  position: fixed;
-  top: 15px;
-  left: 20px;
-}
-
-.component-Input {
-  margin-bottom: 25px;
-  width: 50vw;
-}
-
 h3, h4 {
   font-weight: 300;
 }
@@ -26,25 +14,64 @@ h1 {
   font-weight: 300;
 }
 
+.logo {
+  width: 100px;
+  position: fixed;
+  top: 15px;
+  left: 20px;
+}
+
+.component-Input {
+  margin-bottom: 0px;
+  width: 50vw;
+  border-bottom: solid 2px #c9c9c9;
+  padding-bottom: 5px;
+  position: relative;
+}
+
+.component-Input .label {
+  font-size: 40px;
+  color: rgba(120, 120, 120, 0.1);
+  marign-left: -2px;
+}
+
 .component-Input input {
   width: 90%;
   font-size: 40px;
-  padding: 10px;
+  padding: 0px;
   border: none;
-  border-bottom: solid 2px #c9c9c9;
   transition: border 0.3s;
   outline-width: 0;
-  padding-left: 0px;
   background: transparent;
+}
+
+.component-Conversation__step .component-Input {
+  width: 100%;
+  border-radius: 5px;
+  padding-bottom: 0px;
+  background-color: white;
+  color: black;
+  padding: 10px;
+  box-sizing: border-box;
+}
+
+.component-Conversation__step .component-Input input {
+  font-size: 12px;
 }
 
 .component-Input__send {
   width: 10%;
   font-size: 24px;
-  padding-left: 15px;
   cursor: pointer;
   color: rgb(100, 100, 100);
   transition-duration: 0.4s;
+  text-align: right;
+  display: inline-block;
+  margin-top: -10px;
+}
+
+.component-Input__cancel {
+  cursor: pointer;
 }
 
 .component-Input__send:hover {
@@ -52,7 +79,6 @@ h1 {
 }
 
 .component-Input input {
-  border-bottom: solid 2px #969696;
 }
 
 html, body, #root, .component-App {
@@ -65,33 +91,51 @@ html, body, #root, .component-App {
   display: flex;
   justify-content: center;
   align-items: center;
-  flex-wrap: wrap;
-  flex-direction: column;
+}
+
+.component-App__content {
+  width: 50vw;
+  margin: auto;
 }
 
 .component-Conversation {
-  width: 50vw;
 }
 
 .component-Conversation__step {
-  background-color: #ECE5DD;
-  background-color: #F9A03F;
-  background-color: #8FB996;
-  padding: 20px;
+  background-color: #c0392b;
   border-radius: 5px;
   position: relative;
+  color: white;
+  width: 100%;
+  line-height: 1.5;
+  margin-top: 20px;
 }
+
+.history .component-Conversation__step {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.component-Conversation__step__content {
+  padding: 20px;
+}
+
 .component-Conversation__step::before {
   content: '';
   display: block;
   width: 10px;
   height: 10px;
   transform: rotate(45deg);
-  background-color: #8FB996;
+  background-color: #c0392b;
   position: absolute;
   left: -5px;
   top: 50%;
   margin-top: -5px;
+}
+
+.component-Conversation__step.right::before {
+  left: auto;
+  right: -5px;
 }
 
 .component-Conversation__step__bot {
@@ -107,7 +151,11 @@ html, body, #root, .component-App {
   width: 100%;
   height: 100%;
   border-radius: 100%;
-  border: 1px solid #8FB996;
+}
+
+.component-Conversation__step__bot.right {
+  left: auto;
+  right: -80px;
 }
 
 .u-m-0 {
@@ -125,9 +173,14 @@ html, body, #root, .component-App {
   font-size: 12px;
   font-weight: 700;
   text-transform: uppercase;
+  cursor: pointer;
 }
 
 .component-Conversation__step__options {
+  margin-top: 15px;
+}
+
+.component-Conversation__step__options__option {
   margin-top: 15px;
 }
 
@@ -139,4 +192,20 @@ html, body, #root, .component-App {
 
 a, a:hover, a:active, a:visited, a:focus {
   text-decoration:none;
+}
+
+.loader {
+  display: inline-block;
+  height: 10px;
+  margin-right: 10px;
+  width: 10px;
+  animation: rotate 0.8s infinite linear;
+  border: 2px solid white;
+  border-right-color: transparent;
+  border-radius: 50%;
+}
+
+@keyframes rotate {
+  0%    { transform: rotate(0deg); }
+  100%  { transform: rotate(360deg); }
 }
