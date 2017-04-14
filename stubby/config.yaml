@@ -1,11 +1,9 @@
 - request:
-    url: ^/api/book$
+    url: ^/recommend$
     method: GET
-    headers:
-      content-type: application/json
   response:
     status: 200
     latency: 500
     headers:
       content-type: application/json
-    file: flight.json
+    file: recommend.json

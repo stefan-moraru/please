@@ -11,11 +11,12 @@ Folosind identificarea, se recomanda resure alternative de interes in functie de
 */
 import React, { Component } from 'react';
 import nlp from 'compromise';
-import logo from './please_logo.png';
 import './App.css';
 import stringSimilarity from 'string-similarity';
+import request from 'superagent';
+import _get from 'lodash.get';
 
-// TODO: Timeout pasabil din setari
+// TODO: IMPORTANT: Externalize as many functions as possible, to make this extensible (extract logic)
 class RenderWithTimeout extends React.Component {
   state = {
     visible: false,
@@ -67,11 +68,14 @@ class RenderWithTimeout extends React.Component {
   }
 }
 
+/*
+TODO
 const config = {
   syntax: {
     //TODO: param: \$param // Add regexp for params here
   }
 };
+*/
 
 const examplesFromPlugins = (plugins) => {
   let examples = null;
@@ -86,12 +90,12 @@ const examplesFromPlugins = (plugins) => {
 };
 
 const stringWithoutArticles = (string) => {
-  return string.replace(/\ (a|an|the)\ /g, ' ');
+  return string.replace(/ (a|an|the) /g, ' ');
 };
-
 
 const substituteParamsInString = (params = [], string = '') => {
   return params.reduce((str, param) => {
+    // TODO: Support other types of params, like objects, arrays
     return str.replace(new RegExp(`{${param.name}}`, 'g'), param.value);
   }, string);
 };
@@ -107,7 +111,6 @@ const normalizeText = (text) => {
 };
 
 const matchFromString = (match, matchKey, input, plugin, pluginName) => {
-  let result = [];
   const text = normalizeText(input.text);
   const matchWithoutParams = matchKey.replace(/\{(.+?)\}/g, '');
 
@@ -125,12 +128,16 @@ const matchFromString = (match, matchKey, input, plugin, pluginName) => {
   const paramRegExp = new RegExp(/\{(.+?)\}/, 'g');
   const params = matchKey.split(' ')
   .map((word, index) => {
+    let param = null;
+
     if (paramRegExp.test(word)) {
-      return {
-        name: word.replace(/[\{\}]/g, ''),
+      param = {
+        name: word.replace(/[{}]/g, ''),
         value: splittedText[index]
       };
     }
+
+    return param;
   })
   .filter(param => param);
 
@@ -146,7 +153,7 @@ const pluginMatchesForInput = (plugins, input) => {
   .map(pluginKey => {
     const plugin = plugins[pluginKey];
 
-    Object.keys(plugin.match)
+    return Object.keys(plugin.match)
     .map(matchKey => {
       const match = plugin.match[matchKey];
       res = (res || []).concat(matchFromString(match, matchKey, input, plugin, pluginKey));
@@ -344,7 +351,16 @@ class Settings extends Component {
               text: 'Step 5', options: { 1: { button: { text: 'ok, chill' }, step: 6  } }
             },
             1: {
-              text: 'Hello! Looks like your are trying to find something related to a book like {isbn}',
+              //TODO: More types (image or markdown)
+              text: 'Hello! Looks like your are trying to find something related to a book like {isbn} {recommendations}',
+              query: {
+                url: 'http://localhost:8882/recommend',//'http://tastedive.com/api/similar',
+                method: 'GET',
+                params: 'q={isbn}',
+                fill: '{recommendations}',
+                // TODO: Improve naming
+                responsePath: 'Similar.Info[0].Name'
+              },
               options: {
                 // TODO: Option type input that goes to param
                 1: {
@@ -370,11 +386,6 @@ class Settings extends Component {
       }
     });
   }
-  render() {
-    return null;
-  }
-}
-class Plugins extends Component {
   render() {
     return null;
   }
@@ -435,6 +446,8 @@ class Conversation extends Component {
 
       plugin.step = option.step;
 
+      plugin.conversation[plugin.step].queryDone = false;
+
       this.setState({
         currentPlugin: plugin
       });
@@ -460,7 +473,6 @@ class Conversation extends Component {
   updateParamAndChangeStep(option, input) {
     let plugin = this.state.currentPlugin;
     let name = option.input.param;
-    console.log('updateParamAndChangeStep', name, option, input, plugin);
 
     name = `${name}`;
 
@@ -473,12 +485,9 @@ class Conversation extends Component {
       value: input.text
     });
 
-    console.log('updateParamAndChangeStep', name, option, input, plugin);
-
     this.setState({
       plugin: plugin
     }, () => {
-      console.log('updateParamAndChangeStep', 'changeStep', option);
       this.changeStep(option);
     });
   }
@@ -547,16 +556,15 @@ class Conversation extends Component {
       options = Object.keys(options)
       .map(key => options[key])
       .sort((a, b) => {
-        console.log(a, b);
         if (a.input) return 1;
         if (b.input) return 1;
         if (a.button) return 0;
         if (b.button) return 0;
         if (a.cancel) return -1;
         if (b.cancel) return -1;
-      });
 
-      console.log('sorted', options);
+        return -1;
+      });
 
       rendered = options.map(option => {
         return this.renderOption(params, option);
@@ -570,25 +578,56 @@ class Conversation extends Component {
     );
   }
 
-  renderConversationStep(step, params, plugin, settings, fromHistory = false) {
-    let content = null;
+  updateParamFromQuery(paramName, value, plugin, stepKey) {
+    // TODO: Make plugins an object, key - value
+    plugin.params = (plugin.params || []).concat({
+      name: paramName,
+      value: value
+    });
+
+    plugin.conversation[stepKey].queryDone = true;
+
+    this.setState({
+      currentPlugin: plugin
+    });
+  }
+
+  renderConversationStep(stepKey, step, params, plugin, settings, fromHistory = false) {
     let contentText = <h4>Thank you for using Please!</h4>;
     let contentOptions = null;
 
     if (step) {
       contentText = step.text ? this.renderConversationStepText(step.text, params) : null;
       contentOptions = step.options ? this.renderConversationStepOptions(step.options, params) : null;
+
+      if (step.query && !step.queryDone && !fromHistory) {
+        const query = step.query;
+
+        request[query.method.toLowerCase()](query.url)
+        .query(substituteParamsInString(params, query.params))
+        .then((response) => {
+          // TODO: Add way to get data from request like parse: "response.ceva[0]"
+          // TODO: Create function that will update params
+          // TODO: Fix all Console warnings & errors
+          const data = response.body;
+
+          return this.updateParamFromQuery(query.fill.replace(/[{}]/g, ''), _get(data, query.responsePath), this.state.currentPlugin, stepKey);
+        }, (error) => {
+          console.error(error);
+          // TODO: Failsafe
+        })
+      }
     }
 
     const contentBot = (
       <div className="component-Conversation__step__bot">
-        <img src={plugin.image} />
+        <img src={plugin.image} alt={plugin.title} />
       </div>
     );
 
     const contentUser = (
       <div className="component-Conversation__step__bot right">
-        <img src={settings.user.profile.image} />
+        <img src={settings.user.profile.image} alt="User profile" />
       </div>
     );
 
@@ -631,11 +670,11 @@ class Conversation extends Component {
     if (plugin && plugin.conversation) {
       if (plugin.history) {
         history = plugin.history.map(snapshot => {
-          return this.renderConversationStep(snapshot.plugin.conversation[snapshot.step], snapshot.params, snapshot.plugin, snapshot.settings);
+          return this.renderConversationStep(snapshot.step, snapshot.plugin.conversation[snapshot.step], snapshot.params, snapshot.plugin, snapshot.settings, true);
         }).reverse();
       }
 
-      content = this.renderConversationStep(plugin.conversation[plugin.step], plugin.params, plugin, settings);
+      content = this.renderConversationStep(plugin.step, plugin.conversation[plugin.step], plugin.params, plugin, settings);
     } else {
       content = null;
     }
@@ -716,10 +755,7 @@ class App extends Component {
     const example = this.state.examples ? this.state.examples[this.state.examplesIndex] : null;
     const label = this.state.input ? null : "Please";
 
-    const contentClassname = `component-App__content `;
-
     // TODO: Pretty logo
-    // <img src={logo} className="logo" />
     return (
       <div className="component-App">
         <div className="component-App__content">
