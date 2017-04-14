@@ -32,7 +32,7 @@ h1 {
 .component-Input .label {
   font-size: 40px;
   color: rgba(120, 120, 120, 0.1);
-  marign-left: -2px;
+  margin-left: -2px;
 }
 
 .component-Input input {
@@ -57,6 +57,11 @@ h1 {
 
 .component-Conversation__step .component-Input input {
   font-size: 12px;
+}
+
+.component-Conversation__step .component-Input .label{
+  font-size: 14px;
+  color: black;
 }
 
 .component-Input__send {
@@ -174,6 +179,11 @@ html, body, #root, .component-App {
   font-weight: 700;
   text-transform: uppercase;
   cursor: pointer;
+  transition-duration: 0.2s;
+}
+
+.btn:hover {
+  background-color: rgb(230, 230, 230);
 }
 
 .component-Conversation__step__options {
@@ -208,4 +218,8 @@ a, a:hover, a:active, a:visited, a:focus {
 @keyframes rotate {
   0%    { transform: rotate(0deg); }
   100%  { transform: rotate(360deg); }
+}
+
+.btn:focus, input:focus, select:focus {
+  outline: 0;
 }

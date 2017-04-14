@@ -69,7 +69,7 @@ class RenderWithTimeout extends React.Component {
 
 const config = {
   syntax: {
-    //TODO: param: \$param
+    //TODO: param: \$param // Add regexp for params here
   }
 };
 
@@ -253,9 +253,20 @@ class Input extends Component {
     this.props.onInputChange(input);
   }
 
+  onInputSubmit() {
+    let input;
+
+    input = {
+      text: this.state.inputText
+    };
+
+    this.onInputChange();
+    this.props.onInputSubmit(input);
+  }
+
   onKeyPress(event) {
     if (event.charCode === 13) {
-      this.onInputChange();
+      this.onInputSubmit();
     }
   }
 
@@ -270,11 +281,15 @@ class Input extends Component {
       <div className="component-Input">
         {label}
         <input type="text" spellCheck="false" placeholder={this.props.placeholder || ''} value={this.state.inputText} onChange={this.onInputTextChanged.bind(this)} onKeyPress={this.onKeyPress.bind(this)} />
-        <i className="component-Input__send ion-paper-airplane" onClick={this.onInputChange.bind(this)}></i>
+        <i className="component-Input__send ion-paper-airplane" onClick={this.onInputSubmit.bind(this)}></i>
       </div>
     )
   }
 }
+
+Input.defaultProps = {
+  onInputChange: () => {}
+};
 
 class Settings extends Component {
   componentDidMount() {
@@ -344,7 +359,7 @@ class Settings extends Component {
                     label: 'Try another book',
                     param: 'isbn'
                   },
-                  step: 3
+                  step: 1
                 },
                 3: { button: { text: 'Try another store' }, step: 3 },
               }
@@ -442,8 +457,10 @@ class Conversation extends Component {
     return contentText;
   }
 
-  updateParamAndChangeStep(name, option, input) {
+  updateParamAndChangeStep(option, input) {
     let plugin = this.state.currentPlugin;
+    let name = option.input.param;
+    console.log('updateParamAndChangeStep', name, option, input, plugin);
 
     name = `${name}`;
 
@@ -452,13 +469,16 @@ class Conversation extends Component {
       return param.name !== name;
     })
     .concat({
-      name: `${name}`,
+      name: name,
       value: input.text
     });
+
+    console.log('updateParamAndChangeStep', name, option, input, plugin);
 
     this.setState({
       plugin: plugin
     }, () => {
+      console.log('updateParamAndChangeStep', 'changeStep', option);
       this.changeStep(option);
     });
   }
@@ -499,7 +519,7 @@ class Conversation extends Component {
       );
     } else if (option.input) {
       renderedOption = (
-        <Input label={option.input.label} placeholder={option.input.placeholder} onInputSubmit={this.updateParamAndChangeStep.bind(this, option.param, option.step)} />
+        <Input label={option.input.label} placeholder={option.input.placeholder} onInputSubmit={this.updateParamAndChangeStep.bind(this, option)} />
       );
     }
 
@@ -598,8 +618,8 @@ class Conversation extends Component {
 
     return (
       <div>
-        {_contentText}
         {_contentOptions}
+        {_contentText}
       </div>
     );
   }
@@ -651,6 +671,12 @@ class App extends Component {
     examplesInterval: null
   };
 
+  componentDidMount() {
+    this.onInputChange({
+      text: "I want to read a book like 1234"
+    });
+  }
+
   onInputChange(input) {
     //TODO: input.text, input.image
     this.setState({
@@ -688,14 +714,16 @@ class App extends Component {
 
   render() {
     const example = this.state.examples ? this.state.examples[this.state.examplesIndex] : null;
-    const label = this.state.examples ? null : "Please";
+    const label = this.state.input ? null : "Please";
+
+    const contentClassname = `component-App__content `;
 
     // TODO: Pretty logo
-        //<img src={logo} className="logo" />
+    // <img src={logo} className="logo" />
     return (
       <div className="component-App">
         <div className="component-App__content">
-          <Input onInputChange={this.onInputChange.bind(this)} placeholder={example} label={"Please"} />
+          <Input onInputChange={this.onInputChange.bind(this)} placeholder={example} label={label} />
           <Settings onSettingsChange={this.onSettingsChange.bind(this)} />
           <Conversation input={this.state.input} settings={this.state.settings} />
         </div>
