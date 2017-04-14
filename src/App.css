@@ -59,7 +59,7 @@ h1 {
   font-size: 12px;
 }
 
-.component-Conversation__step .component-Input .label{
+.component-Conversation__step .component-Input .label {
   font-size: 14px;
   color: black;
 }
@@ -73,6 +73,10 @@ h1 {
   text-align: right;
   display: inline-block;
   margin-top: -10px;
+}
+
+.component-Conversation__step .component-Input__send {
+  font-size: 20px;
 }
 
 .component-Input__cancel {

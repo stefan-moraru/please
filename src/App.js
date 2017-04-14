@@ -28,7 +28,7 @@ class App extends Component {
   componentDidMount() {
     //TODO: Remove
     this.onInputChange({
-      text: "I want to read a book like 1234"
+      text: ""//"I want to read a book like 1234"
     });
   }
 
@@ -85,6 +85,7 @@ TODO: Color picker to change chat colors
 TODO: Demo for Particle with a plugin (emit a http event, turn on a internet button led rid)
 TODO: Add "set=$paramX" option to options, they will update the value of the param in state { "set=$paramX,1234",}
 TODO: Make it more conversational
+TODO: 100% test coverage (https://www.codacy.com/app/spencerkelly86/compromise/dashboard)
 */
 
 /*
@@ -98,34 +99,17 @@ I found BookA, BookB, BookC
 Do you like any of them?
 - I like BookA
 EXEMPLU ASTA DE RULAT!! I'm look for a netflix movie to watch / Sure! What're you in the mood for / Something like X / Checkout ABC
-*/
-/*
 I want to buy a horse
 Show me information about Romania
 Exchange 1 leu in euro
 JSON encode { abc: 1 }
 Travel to Ibiza
 Find me an apartment with 3 rooms
-*/
-/*
-  App
-    Input
-    Output(input, plugins, todo: preferences): onChange - update status on App
-    Settings
-      Plugins
 
-
-  Debouce on input that triggers the parsing of the plugins
-  https://www.npmjs.com/package/huh
-  DESCRIPTIVE ERRORS1!!!!
-  100% test coverage (https://www.codacy.com/app/spencerkelly86/compromise/dashboard)
-
-
-  for matching https://github.com/nlp-compromise/compromise/wiki/Match-syntax
-
-  In prezentare parte scurta din ce facea IronMan
-
-  tot proiectul sa fie un json (logo, style etc tot)
+Debouce on input that triggers the parsing of the plugins
+https://www.npmjs.com/package/huh
+DESCRIPTIVE ERRORS1!!!!
+tot proiectul sa fie un json (logo, style etc tot)
 */
 
 /*
@@ -136,4 +120,6 @@ Chat colors
 Serious voice
 Technical: BEM syntax
 Timeoutul de la conversatii este bagat din cod, se misca rapid oricum
+De scos in evidenta faptul ca folosim obiecte si nu vectori (printscreenuri la cum ajuta, fara filter etc, before & after)
+In prezentare parte scurta din ce facea IronMan
 */

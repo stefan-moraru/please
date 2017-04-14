@@ -1,5 +1,6 @@
 import nlp from 'compromise';
 import stringSimilarity from 'string-similarity';
+import _get from 'lodash.get';
 
 const examplesFromPlugins = (plugins) => {
   let examples = null;
@@ -17,10 +18,45 @@ const stringWithoutArticles = (string) => {
   return string.replace(/ (a|an|the) /g, ' ');
 };
 
+const substituteParamInString = (name, value, string = '') => {
+  string = string
+  .split(' ')
+  .map(word => {
+    if (word.indexOf('{') !== -1 && word.indexOf('}') !== -1) {
+      let paramName = word.split('#')[0];
+      const get = word.split('#')[1];
+
+      paramName = paramName.replace(/.*{/g, '');
+      paramName = paramName.replace(/}.*/g, '');
+
+      if (name === paramName) {
+        if (get) {
+          value = _get(value, get.replace(/[{}]/g, ''));
+          word = word.replace(/#.*}/g, '}');
+        }
+
+        // TODO: Support other types of params, like objects, arrays
+        word = word.replace(new RegExp(`{${name}}`, 'g'), value);
+      }
+    }
+
+    return word;
+  })
+  .join(' ')
+
+  /* if (typeof value === 'string' || typeof value === 'number') {
+    string = string.replace(new RegExp(`{${paramName}}`, 'g'), value);
+  } else if (Array.isArray(value)) {
+    console.log('bwah', value);
+    string = string.replace(new RegExp(`{${paramName}}`, 'g'), value.join(', '));
+  } */
+
+  return string;
+};
+
 const substituteParamsInString = (params = [], string = '') => {
-  return params.reduce((str, param) => {
-    // TODO: Support other types of params, like objects, arrays
-    return str.replace(new RegExp(`{${param.name}}`, 'g'), param.value);
+  return Object.keys(params).reduce((str, paramName) => {
+    return substituteParamInString(paramName, params[paramName].value, str);
   }, string);
 };
 
@@ -50,22 +86,21 @@ const matchFromString = (match, matchKey, input, plugin, pluginName) => {
 
   const splittedText = text.split(' ');
   const paramRegExp = new RegExp(/\{(.+?)\}/, 'g');
-  const params = matchKey.split(' ')
-  .map((word, index) => {
-    let param = null;
+  // TODO: Can we improve this? It currently works just for singleword params
 
+  // TODO: Improve
+  let _params = {};
+
+  const params = matchKey.split(' ')
+  .forEach((word, index) => {
     if (paramRegExp.test(word)) {
-      param = {
-        name: word.replace(/[{}]/g, ''),
+      _params[word.replace(/[{}]/g, '')] = {
         value: splittedText[index]
       };
     }
+  });
 
-    return param;
-  })
-  .filter(param => param);
-
-  returnedMatch.params = params;
+  returnedMatch.params = _params;
 
   return returnedMatch;
 }
@@ -111,17 +146,16 @@ const bestPluginMatch = (settings, input) => {
     }, bestPlugin.plugin);
   }
 
-	return currentPlugin;
+	return Object.assign({}, currentPlugin);
 };
 
-const pluginAtStep = (plugin, settings, option) => {
+const pluginAtStep = (plugin, option) => {
   if (option) {
     plugin.history = (plugin.history || [])
     .concat({
       step: plugin.step,
       params: plugin.params,
-      plugin: Object.assign({}, plugin),
-      settings: Object.assign({}, settings)
+      plugin: Object.assign({}, plugin)
     });
 
     plugin.step = option.step;
@@ -148,11 +182,9 @@ const sortOptions = (options) => {
 };
 
 const pluginWithUpdatedParam = (plugin, stepKey, paramName, value) => {
-  // TODO: Make plugins an object, key - value
-  plugin.params = (plugin.params || []).concat({
-    name: paramName,
+  plugin.params[paramName] = {
     value: value
-  });
+  };
 
   plugin.conversation[stepKey].queryDone = true;
 
@@ -160,16 +192,11 @@ const pluginWithUpdatedParam = (plugin, stepKey, paramName, value) => {
 };
 
 const pluginWithUpdatedParamAndStep = (plugin, stepKey, paramName, value) => {
-  plugin.params = (plugin.params || [])
-  .filter(param => {
-    return param.name !== paramName;
-  })
-  .concat({
-    name: paramName,
+  plugin.params[paramName] = {
     value: value
-  });
+  };
 
-	return plugin;
+	return pluginAtStep(plugin, { step: stepKey });
 };
 
 export default {

@@ -1,9 +1,23 @@
 - request:
     url: ^/recommend$
     method: GET
+    query:
+      q: fightclub
   response:
     status: 200
     latency: 500
     headers:
       content-type: application/json
     file: recommend.json
+
+- request:
+    url: ^/recommend$
+    method: GET
+    query:
+      q: pulpfiction
+  response:
+    status: 200
+    latency: 500
+    headers:
+      content-type: application/json
+    file: recommend1.json

@@ -41,14 +41,14 @@ export default class Settings extends Component {
             },
             1: {
               //TODO: More types (image or markdown)
-              text: 'Hello! Looks like your are trying to find something related to a book like {isbn} {recommendations}',
+              text: 'Hello! Looks like your are trying to find something related to a book like {isbn}. One recommendation would be {recommendations#[0].Name}',
               query: {
                 url: 'http://localhost:8882/recommend',//'http://tastedive.com/api/similar',
                 method: 'GET',
                 params: 'q={isbn}',
                 fill: '{recommendations}',
                 // TODO: Improve naming
-                responsePath: 'Similar.Info[0].Name'
+                responsePath: 'Similar.Info'
               },
               options: {
                 // TODO: Option type input that goes to param
@@ -62,11 +62,19 @@ export default class Settings extends Component {
                   input: {
                     placeholder: 'ex: 123456789',
                     label: 'Try another book',
-                    param: 'isbn'
+                    param: '{isbn}'
                   },
                   step: 1
                 },
                 3: { button: { text: 'Try another store' }, step: 3 },
+								4: {
+									button: {
+										text: 'Name',
+										href: 'Url',
+										generate: '{recommendations}'
+									},
+									step: 3
+								}
               }
             }
           },

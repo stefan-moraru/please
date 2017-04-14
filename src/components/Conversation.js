@@ -6,6 +6,36 @@ import _get from 'lodash.get';
 import _ from '../services/_';
 
 // TODO: Cancel not working
+// TODO: Fix all Console warnings & errors
+// TODO: History is broken, does too much requests, when using an Input, on submit it adds 1293912 extra steps
+// TODO: Daca schimb textul din inputul mare, nu se mai face query (queryDone ramane pe true, nu se schimba pluginul sau ceva)
+
+const OptionButton = ({ text, href, onClick, params }) => {
+	let rendered = null;
+  let optionContent = text;
+
+  rendered = (
+    <button className="btn" onClick={onClick}>
+      {optionContent}
+    </button>
+  );
+
+  if (href) {
+    href = _.substituteParamsInString(params, href);
+
+    if (href.indexOf('http') === -1) {
+      href = `http://${href}`;
+    }
+
+    rendered = (
+      <a target="_blank" href={href}>
+        {rendered}
+      </a>
+    );
+  }
+
+	return rendered;
+};
 
 export default class Conversation extends Component {
   state = {
@@ -34,7 +64,7 @@ export default class Conversation extends Component {
 
   changeStep(option) {
     this.setState({
-      currentPlugin: _.pluginAtStep(this.state.currentPlugin, this.state.settings, option)
+      currentPlugin: _.pluginAtStep(this.state.currentPlugin, option)
     });
   }
 
@@ -55,12 +85,13 @@ export default class Conversation extends Component {
   }
 
   updateParamAndChangeStepFromInput(option, input) {
-		const plugin = _.pluginWithUpdatedParamAndStep(this.state.currentPlugin, option.step, option.input.param, option.input.text);
+		const plugin = _.pluginWithUpdatedParamAndStep(this.state.currentPlugin, option.step, option.input.param.replace(/[{}]/g, ''), input.text);
 
     this.setState({
       plugin: plugin
     });
   }
+
 
   // TODO: Stateless components for options
   // TODO: Stateless components for conversation steps
@@ -69,27 +100,41 @@ export default class Conversation extends Component {
     let renderedOption = null;
 
     if (option.button) {
-      let optionContent = option.button.text;
+			const props = {
+				text: option.button.text,
+				href: option.button.href,
+        onClick: this.changeStep.bind(this, option),
+				params: params
+			};
 
-      renderedOption = (
-        <button className="btn" onClick={this.changeStep.bind(this, option)}>
-          {optionContent}
-        </button>
-      );
+			renderedOption = <OptionButton {...props} />;
 
-      if (option.button.href) {
-        let href = _.substituteParamsInString(params, option.button.href);
+			if (option.button.generate) {
+				renderedOption = null;
 
-        if (href.indexOf('http') === -1) {
-          href = `http://${href}`;
-        }
+				const param = params[option.button.generate.replace(/[{}]/g, '')];
 
-        renderedOption = (
-          <a target="_blank" href={href}>
-            {renderedOption}
-          </a>
-        );
-      }
+				if (param) {
+					const buttons = param.value;
+
+					buttons = buttons.map(val => {
+						const gprops = {
+							text: _get(val, option.button.text),
+							href: _get(val, option.button.href),
+			        onClick: this.changeStep.bind(this, option),
+							parms: params
+						};
+
+						return <OptionButton {...gprops} />;
+					});
+
+					renderedOption = (
+						<div>
+							{buttons}
+						</div>
+					);
+				}
+			}
     } else if (option.icon) {
       renderedOption = (
         <div className="component-Input__cancel" onClick={this.changeStep.bind(this, option)}>
@@ -148,14 +193,13 @@ export default class Conversation extends Component {
       contentText = step.text ? this.renderConversationStepText(step.text, params) : null;
       contentOptions = step.options ? this.renderConversationStepOptions(step.options, params) : null;
 
+			console.log(step.query, step.queryDone);
       if (step.query && !step.queryDone && !fromHistory) {
         const query = step.query;
 
         request[query.method.toLowerCase()](query.url)
         .query(_.substituteParamsInString(params, query.params))
         .then((response) => {
-          // TODO: Create function that will update params
-          // TODO: Fix all Console warnings & errors
           const data = response.body;
 
           return this.updateParamFromQuery(query.fill.replace(/[{}]/g, ''), _get(data, query.responsePath), this.state.currentPlugin, stepKey);
@@ -217,13 +261,11 @@ export default class Conversation extends Component {
     if (plugin && plugin.conversation) {
       if (plugin.history) {
         history = plugin.history.map(snapshot => {
-          return this.renderConversationStep(snapshot.step, snapshot.plugin.conversation[snapshot.step], snapshot.params, snapshot.plugin, snapshot.settings, true);
+          return this.renderConversationStep(snapshot.step, snapshot.plugin.conversation[snapshot.step], snapshot.params, snapshot.plugin, settings, true);
         }).reverse();
       }
 
       content = this.renderConversationStep(plugin.step, plugin.conversation[plugin.step], plugin.params, plugin, settings);
-    } else {
-      content = null;
     }
 
     return (

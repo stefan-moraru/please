@@ -2,17 +2,17 @@
    "Similar":{
       "Info":[
          {
-            "Name":"Fight Club",
+            "Name":"PAM 1",
 						"Url": "http://www.google.com?FIGHT_CLUB",
             "Type":"movie"
          },
          {
-            "Name":"Pulp Ficton",
+            "Name":"PAM 2",
 						"Url": "http://www.google.com?PULP_FICTION",
             "Type":"movie"
          },
          {
-            "Name":"Forest Gump",
+            "Name":"PAM 3",
 						"Url": "http://www.google.com?FORST GUMP",
             "Type":"movie"
          }
