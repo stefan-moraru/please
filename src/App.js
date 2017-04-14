@@ -28,7 +28,7 @@ class App extends Component {
   componentDidMount() {
     //TODO: Remove
     this.onInputChange({
-      text: ""//"I want to read a book like 1234"
+      text: ""//"I want to read a book like fightclub"//"I want to read a book like 1234"
     });
   }
 

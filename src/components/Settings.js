@@ -7,7 +7,7 @@ export default class Settings extends Component {
 
   onSettingsChange() {
     this.props.onSettingsChange({
-      pluginMatchProbabilityThreshold: 0.5,
+      pluginMatchProbabilityThreshold: 0.3,
       user: {
         profile: {
           image: 'http://stefanmoraru.ro/assets/me.jpg'
@@ -23,8 +23,10 @@ export default class Settings extends Component {
           examples: ['i want to read a book like 978-0141329383'],
           match: {
             'i want to read book like {isbn}': {
-              step: 1
+              step: 1,
+              extraMatches: ['book {isbn}']
             }
+            //TODO: Transform to object
           },
           conversation: {
             2: {
@@ -53,12 +55,14 @@ export default class Settings extends Component {
               options: {
                 // TODO: Option type input that goes to param
                 1: {
+                  title: 'From store',
                   button: {
                     text: 'Find the exact book on Emag',
                     href: 'www.emag.ro/search/{isbn}'
                   }
                 },
                 2: {
+                  title: 'Try to find another book',
                   input: {
                     placeholder: 'ex: 123456789',
                     label: 'Try another book',

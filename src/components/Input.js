@@ -59,7 +59,8 @@ class Input extends Component {
 }
 
 Input.defaultProps = {
-  onInputChange: () => {}
+  onInputChange: () => {},
+  onInputSubmit: () => {}
 };
 
 export default Input;

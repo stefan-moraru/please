@@ -4,39 +4,11 @@ import Input from './Input';
 import request from 'superagent';
 import _get from 'lodash.get';
 import _ from '../services/_';
+import { OptionButton, OptionIcon, OptionInput } from './Option';
 
-// TODO: Cancel not working
 // TODO: Fix all Console warnings & errors
-// TODO: History is broken, does too much requests, when using an Input, on submit it adds 1293912 extra steps
 // TODO: Daca schimb textul din inputul mare, nu se mai face query (queryDone ramane pe true, nu se schimba pluginul sau ceva)
-// TODO: Add option.title (like a section header)
-
-const OptionButton = ({ text, href, onClick, params }) => {
-	let rendered = null;
-  let optionContent = text;
-
-  rendered = (
-    <button className="btn" onClick={onClick}>
-      {optionContent}
-    </button>
-  );
-
-  if (href) {
-    href = _.substituteParamsInString(params, href);
-
-    if (href.indexOf('http') === -1) {
-      href = `http://${href}`;
-    }
-
-    rendered = (
-      <a target="_blank" href={href}>
-        {rendered}
-      </a>
-    );
-  }
-
-	return rendered;
-};
+// TODO: HAVE LONG MATCHES! Important for calculating match probability
 
 export default class Conversation extends Component {
   state = {
@@ -93,10 +65,7 @@ export default class Conversation extends Component {
     });
   }
 
-
-  // TODO: Stateless components for options
   // TODO: Stateless components for conversation steps
-  // TODO: Stateless components in separate folder, make them really short and easy to understand :*
   renderOption(params, option) {
     let renderedOption = null;
 
@@ -105,51 +74,36 @@ export default class Conversation extends Component {
 				text: option.button.text,
 				href: option.button.href,
         onClick: this.changeStep.bind(this, option),
+				generate: option.button.generate,
 				params: params
 			};
 
 			renderedOption = <OptionButton {...props} />;
-
-			if (option.button.generate) {
-				renderedOption = null;
-
-				const param = params[option.button.generate.replace(/[{}]/g, '')];
-
-				if (param) {
-					const buttons = param.value;
-
-					buttons = buttons.map(val => {
-						const gprops = {
-							text: _get(val, option.button.text),
-							href: _get(val, option.button.href),
-			        onClick: this.changeStep.bind(this, option),
-							parms: params
-						};
-
-						return <OptionButton {...gprops} />;
-					});
-
-					renderedOption = (
-						<div>
-							{buttons}
-						</div>
-					);
-				}
-			}
     } else if (option.icon) {
-      renderedOption = (
-        <div className="component-Input__cancel" onClick={this.changeStep.bind(this, option)}>
-          Cancel <i className={option.icon} />
-        </div>
-      );
+			const props = {
+				icon: option.icon,
+				text: option.text,
+        onClick: this.changeStep.bind(this, option)
+			};
+
+			renderedOption = <OptionIcon {...props} />;
     } else if (option.input) {
-      renderedOption = (
-        <Input label={option.input.label} placeholder={option.input.placeholder} onInputSubmit={this.updateParamAndChangeStepFromInput.bind(this, option)} />
-      );
+			const props = {
+				label: option.input.label,
+				placeholder: option.input.placeholder,
+        onInputSubmit: this.updateParamAndChangeStepFromInput.bind(this, option)
+			};
+
+      renderedOption = <OptionInput {...props} />;
     }
+
+		const renderedOptionTitle = !option.title ? null : (
+			<h4 className="u-m-0">{option.title}</h4>
+		);
 
     return (
       <div className="component-Conversation__step__options__option">
+				{renderedOptionTitle}
         {renderedOption}
       </div>
     );
@@ -162,6 +116,7 @@ export default class Conversation extends Component {
       if (!options.cancel) {
         options.cancel = {
           icon: 'ion-close-circled',
+					text: 'Cancel',
           step: 'cancel'
         };
       }
@@ -194,7 +149,6 @@ export default class Conversation extends Component {
       contentText = step.text ? this.renderConversationStepText(step.text, params) : null;
       contentOptions = step.options ? this.renderConversationStepOptions(step.options, params) : null;
 
-			console.log(step.query, step.queryDone);
       if (step.query && !step.queryDone && !fromHistory) {
         const query = step.query;
 
@@ -262,6 +216,7 @@ export default class Conversation extends Component {
     if (plugin && plugin.conversation) {
       if (plugin.history) {
         history = plugin.history.map(snapshot => {
+					console.log(snapshot.params);
           return this.renderConversationStep(snapshot.step, snapshot.plugin.conversation[snapshot.step], snapshot.params, snapshot.plugin, settings, true);
         }).reverse();
       }
