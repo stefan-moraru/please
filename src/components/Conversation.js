@@ -9,6 +9,7 @@ import _ from '../services/_';
 // TODO: Fix all Console warnings & errors
 // TODO: History is broken, does too much requests, when using an Input, on submit it adds 1293912 extra steps
 // TODO: Daca schimb textul din inputul mare, nu se mai face query (queryDone ramane pe true, nu se schimba pluginul sau ceva)
+// TODO: Add option.title (like a section header)
 
 const OptionButton = ({ text, href, onClick, params }) => {
 	let rendered = null;
