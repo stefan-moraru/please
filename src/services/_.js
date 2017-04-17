@@ -2,6 +2,8 @@ import nlp from 'compromise';
 import stringSimilarity from 'string-similarity';
 import _get from 'lodash.get';
 
+//TODO: Handle empty params (replacing them results in undefined sometimes, or they remain as {imdb})
+
 const examplesFromPlugins = (plugins) => {
   let examples = null;
 
@@ -118,8 +120,9 @@ const pluginMatchesForInput = (plugins, input) => {
       res = (res || []).concat(matchFromString(match, matchKey, input, plugin, pluginKey));
 
       if (match.extraMatches) {
+        console.log('extraMatches', match.extraMatches);
         res = (res || []).concat(match.extraMatches.map(extraMatch => {
-          return matchFromString(match, matchKey, input, plugin, pluginKey);
+          return matchFromString(match, extraMatch, input, plugin, pluginKey);
         }));
       }
 
@@ -144,6 +147,12 @@ const bestPluginMatch = (settings, input) => {
       params: bestPlugin.params ? bestPlugin.params : null,
       history: []
     }, bestPlugin.plugin);
+
+    currentPlugin.conversation.cancel = currentPlugin.conversation.cancel ? currentPlugin.conversation.cancel : {
+      text: 'Oh no! Hopefully we were able to help'
+    };
+
+    // TODO: Reset queryDone on all steps
   }
 
 	return Object.assign({}, currentPlugin);
@@ -154,13 +163,19 @@ const pluginAtStep = (plugin, option) => {
     plugin.history = (plugin.history || [])
     .concat({
       step: plugin.step,
-      params: plugin.params,
+      params: Object.assign({}, plugin.params),
       plugin: Object.assign({}, plugin)
     });
 
     plugin.step = option.step;
 
     plugin.conversation[plugin.step].queryDone = false;
+
+    const query = plugin.conversation[plugin.step].query;
+
+    if (query) {
+      delete plugin.params[query.fill.replace(/[{}]/g, '')]; // TODO: Create function for replacing { } with null
+    }
 	}
 
 	return plugin;
@@ -192,11 +207,13 @@ const pluginWithUpdatedParam = (plugin, stepKey, paramName, value) => {
 };
 
 const pluginWithUpdatedParamAndStep = (plugin, stepKey, paramName, value) => {
-  plugin.params[paramName] = {
+	let _plugin = pluginAtStep(plugin, { step: stepKey });
+
+  _plugin.params[paramName] = {
     value: value
   };
 
-	return pluginAtStep(plugin, { step: stepKey });
+  return _plugin;
 };
 
 export default {
