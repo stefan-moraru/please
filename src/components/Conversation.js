@@ -5,7 +5,7 @@ import request from 'superagent';
 import _get from 'lodash.get';
 import ReactTooltip from 'react-tooltip';
 import _ from '../services/_';
-import { OptionButton, OptionIcon, OptionInput } from './Option';
+import { OptionButton, OptionIcon, OptionInput, OptionVideo } from './Option';
 import superagentjsonp from 'superagent-jsonp';
 
 // TODO: Fix all Console warnings & errors
@@ -66,23 +66,24 @@ export default class Conversation extends Component {
     });
   }
 
+  generateButton(option, params) {
+		const props = {
+			text: option.button.text,
+			href: _.substituteParamsInString(params, option.button.href),
+      image: option.button.image,
+      onClick: this.changeStep.bind(this, option),
+			params: params
+		};
+
+		return <OptionButton {...props} />;
+  }
+
   // TODO: Stateless components for conversation steps
   renderOption(params, option) {
     let renderedOption = null;
 
     if (option.button) {
-			const props = {
-				text: option.button.text,
-				href: option.button.href,
-        image: option.button.image,
-        onClick: this.changeStep.bind(this, option),
-				generate: option.button.generate,
-        generateLimit: option.button.generateLimit,
-        generateDefault: option.button.generateDefault,
-				params: params
-			};
-
-			renderedOption = <OptionButton {...props} />;
+			renderedOption = this.generateButton(option, params);
     } else if (option.icon) {
 			const props = {
 				icon: option.icon,
@@ -99,7 +100,58 @@ export default class Conversation extends Component {
 			};
 
       renderedOption = <OptionInput {...props} />;
+    } else if (option.video) {
+      const props = {
+        id: option.video.id
+      };
+
+      renderedOption = <OptionVideo {...props} />;
     }
+
+  	if (option.generate) {
+  		renderedOption = null;
+
+  		const param = params[option.generate.replace(/[{}]/g, '')];
+
+  		if (param && param.value && param.value.length > 0) {
+  			const items = param.value;
+
+  			if (option.generateLimit) {
+  				items = items.slice(0, option.generateLimit);
+  			}
+
+  			items = items
+  			.map(val => {
+          if (option.button) {
+            const newOption = Object.assign({}, option);
+
+            newOption.button = Object.assign({}, option.button);
+
+            newOption.button.text = _get(val, option.button.text);
+            newOption.button.href = _get(val, option.button.href);
+            newOption.button.image = _get(val, option.button.image);
+
+            return this.generateButton(newOption, params);
+          }
+
+          return val;
+  			});
+
+        renderedOption = (
+  				<div>
+  					{items}
+  				</div>
+  			);
+  		} else {
+  			const def = <h6>{option.generateDefault || 'No results'}</h6>;
+
+  			renderedOption = (
+  				<div>
+  					{def}
+  				</div>
+  			);
+  		}
+  	}
 
 		const renderedOptionTitle = !option.title ? null : (
 			<h4 className="u-m-b-10 u-m-t-0">{option.title}</h4>

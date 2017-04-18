@@ -31,13 +31,6 @@ class App extends Component {
     examplesInterval: null
   };
 
-  componentDidMount() {
-    //TODO: Remove
-    /* this.onInputChange({
-      text: "book fightclub"//"I want to read a book like fightclub"//"I want to read a book like 1234"
-    }); */
-  }
-
   onInputChange(input) {
     this.setState({
       input: input
@@ -54,7 +47,6 @@ class App extends Component {
   }
 
   render() {
-    // TODO: Examples inside Input component like a dropdown
     const example = this.state.examples ? this.state.examples[this.state.examplesIndex] : null;
     const label = null;
 
@@ -84,9 +76,7 @@ class App extends Component {
 export default App;
 
 /*
-TODO: IMPORTANT: Externalize as many functions as possible, to make this extensible (extract logic)
 TODO: const config = { syntax: { //TODO: param: \$param // Add regexp for params here } };
-TODO: Make it work with lots of messages (now it's being cut off because of flex)
 TODO: REALLY REALLY GOOD DOCUMENTATION PAGE
 TODO: https://dev.to/andraconnect/augmented-reality-in-10-lines-of-html
 TODO: FIX CONSOLE ERRORS!!!!!

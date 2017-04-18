@@ -19,13 +19,58 @@ export default class Settings extends Component {
         //TODO: visit #Noun will show google maps
         //TODO: Add 'cancel' as conversation step to represent canceling
         //TODO: Add parameter regexp so you can do singular words on inputs
+        'movies': {
+          title: "Movie offers you can't refuse",
+          image: 'http://icons.iconarchive.com/icons/designbolts/free-multimedia/1024/Clapper-icon.png',
+          match: {
+            'i want to watch a movie like {movie}': {
+              step: 'recommendations1',
+              extraMatches: [
+                'watch a movie like {movie}',
+                'recomment me a movie like {movie}'
+              ]
+            }
+          },
+          conversation: {
+            recommendations1: {
+              text: 'Show me the money!',
+              jumpToStep: 'recommendations2',
+              jumpToStepDelay: 2000,
+              options: {
+                1: {
+                  video: {
+                    id: 'mayliqsE8J8'
+                  }
+                }
+              }
+            },
+            recommendations2: {
+              text: "Let's find some good movies for you",
+              jumpToStep: 'recommendations3',
+              jumpToStepDelay: 2500
+            },
+            recommendations3: {
+              text: "So you want something like {movie}. Let's see what I can find",
+              jumpToStep: 'recommendations4',
+              jumpToStepDelay: 3000
+            },
+            recommendations4: {
+              text: "Heya"
+            }
+          },
+          examples: [
+            'i want to watch a movie like fightclub',
+            'recommend me a movie like godfather'
+          ]
+        },
         'food': {
           title: 'All about food',
           image: 'https://cdn0.iconfinder.com/data/icons/kameleon-free-pack-rounded/110/Food-Dome-512.png',
           examples: [
             'food like pasta',
             'i want to eat something like meatloaf',
-            'i am hungry for chips'
+            'i am hungry for chips',
+            'need help cooking some pancakes'
           ],
           match: {
             'food like {food}': {
@@ -35,6 +80,9 @@ export default class Settings extends Component {
                 'i am hungry for {food}',
                 'snack like {food}'
               ]
+            },
+            'need help cooking some {food}': {
+              step: 'helpcooking'
             }
           },
           conversation: {
@@ -42,6 +90,33 @@ export default class Settings extends Component {
               text: 'Hello, dear hungry friend!',
               jumpToStep: 'search',
               jumpToStepDelay: 1000
+            },
+            helpcooking: {
+              text: "Amazing! Do you need help cooking it?",
+              options: {
+                videotutorials: {
+                  title: "Let's see if this helps",
+                  button: {
+                    text: 'Video tutorials',
+                    href: 'www.youtube.com/results?search_query=how+to+cook+{food}'
+                  },
+                  step: 'done'
+              		//https://www.googleapis.com/youtube/v3/search?part=snippet&key=AIzaSyDScKGu3VK7x27dk0E4bmdiSmP9dsC-cLU&maxResults=5&type=video
+                },
+                texttutorials: {
+                  button: {
+                    text: 'Text tutorials',
+                    href: 'http://www.wikihow.com/wikiHowTo?search={food}'
+                  },
+                  step: 'done'
+                },
+                recipes: {
+                  button: {
+                    text: 'Recipes',
+                    href: 'http://www.food.com/search/{food}'
+                  }
+                }
+              }
             },
             search: {
               text: "I see that you are looking for {food}-like food. Amazing! We've got exactly what you need",
@@ -58,12 +133,12 @@ export default class Settings extends Component {
 									button: {
 										text: 'title',
 										href: 'href',
-                    image: 'thumbnail',
-										generate: '{foodRecommendations}',
-                    generateLimit: 4,
-                    generateDefault: 'Looks like we could not find anything'
+                    image: 'thumbnail'
 									},
-									step: 'done'
+									generate: '{foodRecommendations}',
+                  generateLimit: 4,
+                  generateDefault: 'Looks like we could not find anything',
+									step: 'helpcooking'
                 },
                 again: {
                   title: 'Try again with a different search option',
@@ -79,15 +154,7 @@ export default class Settings extends Component {
                     text: 'Find recipes online',
                     href: 'www.food.com/search/{food}'
                   },
-                  step: 'done'
-                },
-                helpcooking: {
-                  title: 'Do you need help for cooking it?',
-                  button: {
-                    text: 'YouTube tutorial',
-                    href: 'www.youtube.com/results?search_query=how+to+cook+{food}'
-                  },
-                  step: 'done'
+                  step: 'helpcooking'
                 }
               }
             },

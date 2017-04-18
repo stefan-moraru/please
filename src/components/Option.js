@@ -3,7 +3,7 @@ import _ from '../services/_.js';
 import _get from 'lodash.get';
 import Input from './Input';
 
-const OptionButton = ({ text, href, image, onClick, params, generate, generateLimit, generateDefault }) => {
+const OptionButton = ({ text, href, image, onClick  }) => {
 	let rendered = null;
   let optionContent = text;
 	let imageStyle = null;
@@ -37,66 +37,16 @@ const OptionButton = ({ text, href, image, onClick, params, generate, generateLi
   );
 
   if (href) {
-    const _href = _.substituteParamsInString(params, href);
-
-    if (_href.indexOf('http') === -1) {
-      _href = `http://${_href}`;
+    if (href.indexOf('http') === -1) {
+      href = `http://${href}`;
     }
 
     rendered = (
-      <a target="_blank" href={_href}>
+      <a target="_blank" href={href}>
         {rendered}
       </a>
     );
   }
-
-	if (generate) {
-		rendered = null;
-
-		const param = params[generate.replace(/[{}]/g, '')];
-
-		if (param && param.value && param.value.length > 0) {
-			const buttons = param.value;
-
-			buttons = buttons
-			.sort((a, b) => {
-				if (_get(a, image)) return -1;
-				if (_get(b, image)) return 1;
-				return 0;
-			});
-
-			if (generateLimit) {
-				buttons = buttons.slice(0, generateLimit);
-			}
-
-			buttons = buttons
-			.map(val => {
-				const gprops = {
-					text: _get(val, text),
-					href: _get(val, href),
-					image: _get(val, image),
-	        onClick: onClick,
-					parms: params
-				};
-
-				return <OptionButton {...gprops} />;
-			});
-
-			rendered = (
-				<div>
-					{buttons}
-				</div>
-			);
-		} else {
-			const def = <h6>{generateDefault || 'No results'}</h6>;
-
-			rendered = (
-				<div>
-					{def}
-				</div>
-			);
-		}
-	}
 
 	return rendered;
 };
@@ -111,8 +61,20 @@ const OptionInput = ({ label, placeholder, onInputSubmit }) => (
   <Input label={label} placeholder={placeholder} onInputSubmit={onInputSubmit} imagePattern="{name}" />
 );
 
+const OptionVideo = ({ id }) => {
+	const iframeProps = {
+		width: '200px',
+		height: '200px',
+		frameborder: '0',
+		src: `https://www.youtube.com/embed/${id}`
+	};
+
+	return <iframe {...iframeProps} />;
+};
+
 export {
 	OptionButton,
 	OptionIcon,
-	OptionInput
+	OptionInput,
+	OptionVideo
 };

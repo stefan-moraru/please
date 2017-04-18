@@ -73,8 +73,6 @@ const stringWithoutArticles = (string) => {
   return string.replace(/ (a|an|the) /g, ' ');
 };
 
-//TODO: Conversation step jump to another one after timeout
-
 const substituteParamInString = (name, value, string = '') => {
   string = string
   .split(' ')
@@ -120,8 +118,8 @@ const substituteParamsInString = (params = [], string = '') => {
 const normalizeText = (text) => {
   if (text) {
     text = text.toLowerCase();
-    text = stringWithoutArticles(text);
-    text = nlp(text).normalize().sentences(0).out();
+    //text = stringWithoutArticles(text);
+    //text = nlp(text).normalize().sentences(0).out();
   }
 
   return text;
@@ -190,9 +188,18 @@ const pluginMatchesForInput = (plugins, input) => {
 const bestPluginMatch = (settings, input) => {
   const plugins = settings.plugins;
   const matches = pluginMatchesForInput(plugins, input);
-  const bestPlugin = matches.sort((a, b) => a.probability < b.probability)[0];
+  const bestPlugin = matches.sort((a, b) => {
+    if (a.probability < b.probability) {
+      return 1;
+    } else {
+      return -1;
+    }
+  })[0];
 
   let currentPlugin = null;
+
+  console.log('Got list of matches', matches);
+  console.log(bestPlugin);
 
   if (bestPlugin.probability >= settings.pluginMatchProbabilityThreshold) {
     currentPlugin = Object.assign({}, {

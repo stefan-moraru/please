@@ -199,15 +199,9 @@ class Input extends Component {
   }
 
   render() {
-    //TODO: IMPORTANT Add image input
-    //TODO: Replace the button with a debounce (or add debounce and button)
     //TODO: Find even more inputs? (files? or something)
     //TODO: https://dev.to/andraconnect/augmented-reality-in-10-lines-of-html
     const label = this.props.label ? <div className="label">{this.props.label}</div> : null;
-
-    //TODO: Move suggestions to separate function
-    //TODO: When typing inside the big input, add overlay to body (under the input and suggestions, that will darken the page)
-    //TODO: Show suggestions on focus, hide on blur
 
     const suggestions = (this.state.suggestionsVisible && this.props.suggestionsEnabled) ? this.renderSuggestions(this.props.suggestions) : null;
 

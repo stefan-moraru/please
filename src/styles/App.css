@@ -267,7 +267,11 @@ body {
 }
 
 .component-Conversation__step__options__option {
-  margin-top: 15px;
+  margin-bottom: 15px;
+}
+
+.component-Input__cancel {
+  margin-bottom: 0px;
 }
 
 .component-examples {
