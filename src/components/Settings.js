@@ -32,7 +32,8 @@ export default class Settings extends Component {
               step: 'initial',
               extraMatches: [
                 'i want to eat something like {food}',
-                'i am hungry for {food}'
+                'i am hungry for {food}',
+                'snack like {food}'
               ]
             }
           },
@@ -76,11 +77,18 @@ export default class Settings extends Component {
                   title: 'You can manually search for recipes online',
                   button: {
                     text: 'Find recipes online',
-                    href: 'www.food.com/search/{food}',
-                    image: ''
+                    href: 'www.food.com/search/{food}'
                   },
                   step: 'done'
                 },
+                helpcooking: {
+                  title: 'Do you need help for cooking it?',
+                  button: {
+                    text: 'YouTube tutorial',
+                    href: 'www.youtube.com/results?search_query=how+to+cook+{food}'
+                  },
+                  step: 'done'
+                }
               }
             },
             done: {

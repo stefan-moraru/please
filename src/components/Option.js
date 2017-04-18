@@ -108,7 +108,7 @@ const OptionIcon = ({ icon, text, onClick }) => (
 );
 
 const OptionInput = ({ label, placeholder, onInputSubmit }) => (
-  <Input label={label} placeholder={placeholder} onInputSubmit={onInputSubmit} />
+  <Input label={label} placeholder={placeholder} onInputSubmit={onInputSubmit} imagePattern="{name}" />
 );
 
 export {

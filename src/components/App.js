@@ -18,6 +18,7 @@ import React, { Component } from 'react';
 import Input from './Input';
 import Settings from './Settings';
 import Conversation from './Conversation';
+import ReactTooltip from 'react-tooltip';
 import _ from '../services/_';
 import '../styles/App.css';
 

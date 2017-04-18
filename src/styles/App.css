@@ -33,6 +33,10 @@ h1 {
   align-items: center;
 }
 
+.component-Input__container {
+  position: relative;
+}
+
 .component-Input .label {
   font-size: 40px;
   color: rgba(200, 200, 200, 0.1);
@@ -77,7 +81,7 @@ h1 {
   font-size: 20px;
 }
 
-.component-Conversation__step .component-Input__send:hover {
+.component-Conversation__step .component-Input__extra i:hover {
   color: rgba(0, 0, 0, 0.9);
 }
 
@@ -289,6 +293,19 @@ a, a:hover, a:active, a:visited, a:focus {
   border-radius: 50%;
 }
 
+.component-Input__container .loader {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-top: -5px;
+  margin-left: -5px;
+}
+
+.component-Input.disabled {
+  pointer-events: none;
+  opacity: 0.05;
+}
+
 @keyframes rotate {
   0%    { transform: rotate(0deg); }
   100%  { transform: rotate(360deg); }
@@ -307,13 +324,17 @@ a, a:hover, a:active, a:visited, a:focus {
   background-color: white;
   height: 205px;
   overflow-y: auto;
+  background: #4568DC;  /* fallback for old browsers */
+  background: -webkit-linear-gradient(to right, #B06AB3, #4568DC);  /* Chrome 10-25, Safari 5.1-6 */
+  background: linear-gradient(to right, #B06AB3, #4568DC); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
 }
 
 .component-Input__suggestions__suggestion {
   padding: 10px 5px;
   background-color: rgba(200, 200, 200, 0.1);
+  background-color: transparent;
+  color: white;
   margin-bottom: 5px;
-  border: 1px solid rgba(200, 200, 200, 0.2);
   cursor: pointer;
   transition-duration: 0.2s;
   position: relative;
@@ -419,4 +440,24 @@ a, a:hover, a:active, a:visited, a:focus {
   top: 100%;
   width: 0;
   border-top: 86.60px solid #64C7CC;
+}
+
+@media (max-width: 750px) {
+  .component-App__content {
+    width: 70vw;
+  }
+}
+
+@media (max-width: 550px) {
+  .component-App__content {
+    width: 95vw;
+  }
+
+  .component-Conversation__step::before {
+    display: none;
+  }
+
+  .component-Conversation__step__bot {
+    display: none;
+  }
 }

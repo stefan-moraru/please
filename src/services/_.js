@@ -112,7 +112,6 @@ const substituteParamInString = (name, value, string = '') => {
 };
 
 const substituteParamsInString = (params = [], string = '') => {
-  console.log('substituteParamInString', params, string);
   return Object.keys(params).reduce((str, paramName) => {
     return substituteParamInString(paramName, params[paramName].value, str);
   }, string);

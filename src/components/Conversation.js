@@ -3,12 +3,12 @@ import RenderWithTimeout from './RenderWithTimeout';
 import Input from './Input';
 import request from 'superagent';
 import _get from 'lodash.get';
+import ReactTooltip from 'react-tooltip';
 import _ from '../services/_';
 import { OptionButton, OptionIcon, OptionInput } from './Option';
 import superagentjsonp from 'superagent-jsonp';
 
 // TODO: Fix all Console warnings & errors
-// TODO: Daca schimb textul din inputul mare, nu se mai face query (queryDone ramane pe true, nu se schimba pluginul sau ceva)
 // TODO: HAVE LONG MATCHES! Important for calculating match probability
 
 export default class Conversation extends Component {
@@ -156,6 +156,7 @@ export default class Conversation extends Component {
       if (step.query && !step.queryDone && !fromHistory) {
         const query = step.query;
 
+        // TODO: Move this to _
         request[query.method.toLowerCase()](query.url)
         .use(superagentjsonp({
           timeout: 10000
@@ -183,13 +184,13 @@ export default class Conversation extends Component {
     }
 
     const contentBot = (
-      <div className="component-Conversation__step__bot">
+      <div className="component-Conversation__step__bot" data-tip={plugin.title}>
         <img src={plugin.image} alt={plugin.title} />
       </div>
     );
 
     const contentUser = (
-      <div className="component-Conversation__step__bot right">
+      <div className="component-Conversation__step__bot right" data-tip="You">
         <img src={settings.user.profile.image} alt="User profile" />
       </div>
     );
@@ -257,6 +258,8 @@ export default class Conversation extends Component {
     return (
       <div className="component-Conversation">
         {conversation}
+
+        <ReactTooltip type="dark" effect="solid" />
       </div>
     );
   }

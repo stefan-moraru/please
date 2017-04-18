@@ -2,18 +2,21 @@ import React, { Component } from 'react';
 import Dropzone from 'react-dropzone';
 import request from 'superagent';
 import stringSimilarity from 'string-similarity';
+import ReactTooltip from 'react-tooltip';
 import _ from '../services/_';
 
 const GOOGLE_API_KEY = "AIzaSyDScKGu3VK7x27dk0E4bmdiSmP9dsC-cLU";
 const CV_URL = 'https://vision.googleapis.com/v1/images:annotate?key=' + GOOGLE_API_KEY;
 
-// TODO: Loading indicator after uploading an image (prevent typing)
+// TODO: Better hover css
+// TODO: Improve how the suggestions look
 
 class Input extends Component {
   state = {
     inputText: '',
     inputImage: null,
-    suggestionsVisible: false
+    suggestionsVisible: false,
+    loading: false
   };
 
   onInputTextChangedToValueSubmit(value) {
@@ -55,11 +58,16 @@ class Input extends Component {
   }
 
   onInputImageChange(result) {
-    const value = `${result.category} like ${result.name}`;
+    let value = '';
+
+    if (result) {
+      value = _.substituteParamsInString({
+        category: { value: result.category.replace(/\s/g, '') },
+        name: { value: result.name.replace(/\s/g, '') }
+      }, this.props.imagePattern);
+    }
 
     return this.onInputTextChangedToValueSubmit(value);
-
-    console.log('onInputImageChange', result);
   }
 
   onKeyPress(event) {
@@ -100,21 +108,25 @@ class Input extends Component {
   }
 
   onDrop(files) {
-    const file = files[0];
+    this.setState({
+      loading: true
+    }, () => {
+      const file = files[0];
 
-    let reader = new FileReader();
+      let reader = new FileReader();
 
-    reader.onloadend = () => {
-      let content = event.target.result;
+      reader.onloadend = () => {
+        let content = event.target.result;
 
-      content = content.replace('data:image/png;base64,', '');
-      content = content.replace('data:image/jpeg;base64,', '');
-      content = content.replace('data:image/jpg;base64,', '');
+        content = content.replace('data:image/png;base64,', '');
+        content = content.replace('data:image/jpeg;base64,', '');
+        content = content.replace('data:image/jpg;base64,', '');
 
-      this.sendFileToCloudVision(content).then(this.onInputImageChange.bind(this)).catch(e => { console.error(e); });
-    };
+        this.sendFileToCloudVision(content).then(this.onInputImageChange.bind(this)).catch(e => { console.error(e); });
+      };
 
-    reader.readAsDataURL(file);
+      reader.readAsDataURL(file);
+    });
   }
 
   sendFileToCloudVision(content) {
@@ -138,14 +150,25 @@ class Input extends Component {
       .post(CV_URL)
       .set('Content-Type', 'application/json')
       .send(JSON.stringify(data))
-      .end(function(err, resp) {
+      .end((err, resp) => {
         if (err) {
           console.log(err);
+          this.setState({ loading: false });
           return reject(err);
         }
 
-        const web = resp.body.responses[0].webDetection.webEntities[0];
-        const text = resp.body.responses[0].textAnnotations[0].description;
+        const response = resp.body.responses[0];
+
+        let web = null;
+        let text = null;
+
+        if (response.webDetection) {
+          web = response.webDetection.webEntities[0];
+        }
+
+        if (response.textAnnotations) {
+          text = response.textAnnotations[0].description;
+        }
 
         if (web) {
           _.infoFromKnowledgeGraph(web.entityId)
@@ -153,16 +176,21 @@ class Input extends Component {
             resolve(Object.assign({}, info, {
               text: text
             }));
+            this.setState({ loading: false });
             console.log('Got info from knowledge graph', info);
           })
           .catch((error) => {
             console.log(error);
             return reject(error);
           });
-        } else {
+        } else if (text) {
           resolve({
             text: text
           });
+
+          this.setState({ loading: false });
+        } else {
+          resolve(null);
         }
 
         console.log('Cloud Vision API got ', web, text);
@@ -196,6 +224,7 @@ class Input extends Component {
 
     const iconProps = {
       className: "component-Input__send ion-paper-airplane",
+      'data-tip': 'Send (you can also press enter)',
       onClick: this.onInputSubmit.bind(this)
     };
 
@@ -204,26 +233,36 @@ class Input extends Component {
     );
 
     const imageIconProps = {
-      className: 'ion-images',
-      onClick: this.onInputSubmit.bind(this)
+      className: 'ion-images'
     };
 
-    //TODO: Tooltips to everything (like Upload an image / Parse input etc!!)
     //TODO: Conversation step (in the recipes one). Need help on how to cook it? => link spre youtube cu ?q=...
 
-    return (
-      <div className="component-Input">
-        {label}
-        <input {...inputProps} />
-        <div className="component-Input__extra">
-          <Dropzone className="dropzone" onDrop={this.onDrop.bind(this)}>
-            <i {...imageIconProps} />
-          </Dropzone>
+    const loader = !this.state.loading ? null : (
+      <div className="loader"></div>
+    );
 
-          <i {...iconProps} />
+    const disabledClassName = this.state.loading ? 'disabled' : '';
+
+    return (
+      <div className="component-Input__container">
+        {loader}
+
+        <div className={`component-Input ${disabledClassName}`}>
+          {label}
+          <input {...inputProps} />
+          <div className="component-Input__extra">
+            <Dropzone className="dropzone" onDrop={this.onDrop.bind(this)} data-tip="Upload an image">
+              <i {...imageIconProps} />
+            </Dropzone>
+
+            <i {...iconProps} />
+          </div>
+          {suggestions}
+          {overlayDarken}
         </div>
-        {suggestions}
-        {overlayDarken}
+
+        <ReactTooltip type="dark" effect="solid" />
       </div>
     );
   }
@@ -232,7 +271,8 @@ class Input extends Component {
 Input.defaultProps = {
   onInputChange: () => {},
   onInputSubmit: () => {},
-  suggestionsEnabled: false
+  suggestionsEnabled: false,
+  imagePattern: '{category} like {name}'
 };
 
 export default Input;
