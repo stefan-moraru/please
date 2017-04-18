@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import Hexagon from './Hexagon';
 
 export default class Settings extends Component {
   componentDidMount() {
@@ -116,6 +117,21 @@ export default class Settings extends Component {
 
   render() {
 		//TODO: Settings panel with list of plugins and stuff (store them in firebase)
-    return null;
+    return (
+      <div>
+        {/*<Hexagon backgroundUrl="" width="200" height="400" />
+        <Hexagon backgroundUrl="" width="200" height="400" />*/}
+
+        <div className="hexagonsRow">
+          <div className="hexagon"></div>
+          <div className="hexagon"></div>
+        </div>
+
+        <div className="hexagonsRow">
+          <div className="hexagon"></div>
+        </div>
+       
+      </div>
+    );
   }
 }

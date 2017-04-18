@@ -340,3 +340,53 @@ a, a:hover, a:active, a:visited, a:focus {
   z-index: 2;
   transition: background-color 5s ease;
 }
+
+/***
+
+  CSS For hexagons
+
+  mid-width = top-border-left + bottom-border-left
+  mid-height = top-border-bottom + bottom-border-top
+
+***/
+
+.hexagon {
+  position: relative;
+  width: 300px;
+  height: 173.21px;
+  background-color: #64C7CC;
+  margin: 86.60px 0;
+}
+
+.hexagonsRow .hexagon {
+  display: inline-block;
+  margin-left: 10px;
+}
+
+.hexagonsRow:nth-child(even) {
+  margin-left: 155px;
+}
+
+.hexagonsRow:nth-child(even) .hexagon {
+  margin-top: 5px;
+}
+
+.hexagon:before,
+.hexagon:after {
+  content: "";
+  position: absolute;
+  width: 0;
+  border-left: 150px solid transparent;
+  border-right: 150px solid transparent;
+}
+
+.hexagon:before {
+  bottom: 100%;
+  border-bottom: 86.60px solid #64C7CC;
+}
+
+.hexagon:after {
+  top: 100%;
+  width: 0;
+  border-top: 86.60px solid #64C7CC;
+}
