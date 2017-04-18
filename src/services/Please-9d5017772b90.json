@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "level-poetry-164817",
+  "private_key_id": "9d5017772b904cda296f121b640cc7f0bb1e0431",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQCeRaqEciL8dsMJ\nJoxNkwrFLf4FXPtbjKDgeHYhfRIqWDQQ3A/0VSU4i4HIvNmzZNZAw6Fu6g7hBFRk\n5QDQRsqR69TO4nwGnJZzTRzwxH2/IS6kIJ2CVUt9m754akoIDdaYhuddJklNOok5\na7JcvKTFT2fteylj6hATAFKwXanJSoIy1entsPsfxZV/gDOiTyjf7yaWzxFZkQm8\nOoeIkEc3zbNfZx6PQTqDqT3Y3J80wq8ig+js8uOPpjAM8iytC3Sqf+Q4yv4PRvLk\n3KUs7tnmsoJTVsA8fj9qzT+0yNL8BQgSXfDGKEtzVaPcQr8VqtF9aWT6fyoOyV/B\nyWLdGSuNAgMBAAECggEBAIrgkmk5RZ3GEAlde8st9Utjufu2xRBl61xMF0v3VRM2\n5ijNEGrSs6BUOYOMwnH5T07w2hxa4MdtZyhJEVewZlt4VflbHn0mtZVi2rwhjj1B\nvo1h2RPeCCmlmZJLob5DdkPMTAOebr+HV5W8/HsHRIWl0Ym+gmkbnxMtO2FqLmti\nxm9KRG04K6VTgcAMfvKi2SuhbQoRjBzKczMDkIRH7nCFPeGSeTMP6/fAAtBCTVBE\n4EASW43CkZKc7b98VlTAuT0cQ1zzxxN/oYrb3AMokkbnrS9bqKoNQQixvlq9pIdT\nGLOyK4mGs0pB698Q7wAor4A7ECEsh6GSVq8Bh9BrSbkCgYEAyaDI/q/nOdWyOfz8\nQWgAeTGh5Usdr4rdWpXesq4xcXUxkToRBW5983CreZ8EWIAQk3i5m28VCB+DTSXj\nhMRG83PbJUcSAFQUnKS2oepQOtL/VunDmD+iWGj9GR1IwlfcgilRAWiRAjO2iv85\n4Ba4oEvL1QMXPKdBCMXpVHfxkb8CgYEAyPPXrX+ZehK6EbYcEMnE4UeZIst43wqa\nAbs/R8CX0pRkx28nKjBiILqG6Yn6wtNrq7mpjr6KX29S5p9ScD1/KjpQX/4ljy5C\n4jyiYXZ4dHeve7Cez4iW8MiEIPHjRSiAGNS/MZu+orb3ZpFsWUL8xVxE7V8DGfl3\n+WKaFup6fbMCgYEAoqRZHeDE00lG0DH7RcNgBmL75hsWoiCQ995G2rla1tujFTPS\nwR/k53duStfzyHPdaygKCJCtVXUeFCBJDDLLzNwa3VIb+jnYupa/X5LEDv9eyzwb\n8/b4vPpLl3Og2mvHSxOK7Wjs9+rBCBRjGhkZ6uvZS0WH+/wqoKoM0n9CVL8CgYEA\ni4hVYBFTvmG2dYnf3wBbBpoyiOiD20t/OGiOPgJK6VtExv41UaQa3uLlvs+iIRmw\nj6LxSz6e0jl4dM537Zul6upm2OCdr9fNdU3o6ofah/R7EwXGoBAVzsdMh5ut1V2T\n5KoEwCuGqXEmREAB3dEXtuqkqbXpb2W7mpyOpg7WUuUCgYBcX5Vk9Ie7yB+EKwas\nmRQAeQ0yB77kjCukI5H/zed1Hj40IRiCd1AgpwOPSq5GxeuM12Cs6sktNHAy8mEs\nO7Lm43AP0kTwZwbAezmmDNxLEBVU4PCjkz4mT+wF2N0lkyL4nDo83KXGHtVc/oyk\nlINq5DpmVDF7LXKAn93FLJ2UTg==\n-----END PRIVATE KEY-----\n",
+  "client_email": "pleaseadmin@level-poetry-164817.iam.gserviceaccount.com",
+  "client_id": "117054393454628567780",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://accounts.google.com/o/oauth2/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/pleaseadmin%40level-poetry-164817.iam.gserviceaccount.com"
+}

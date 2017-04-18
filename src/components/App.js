@@ -8,13 +8,18 @@ Folosind identificarea, se recomanda resure alternative de interes in functie de
   - Calitate
   - Similaritate
   - Preferinte alte utilizatorului
+
+  Muzica
+  Articol alimentar
+  Continut vitamine
+  Produs pret
 */
 import React, { Component } from 'react';
-import Input from './components/Input';
-import Settings from './components/Settings';
-import Conversation from './components/Conversation';
-import _ from './services/_';
-import './App.css';
+import Input from './Input';
+import Settings from './Settings';
+import Conversation from './Conversation';
+import _ from '../services/_';
+import '../styles/App.css';
 
 class App extends Component {
   state = {
@@ -27,9 +32,9 @@ class App extends Component {
 
   componentDidMount() {
     //TODO: Remove
-    this.onInputChange({
-      text: ""//"I want to read a book like fightclub"//"I want to read a book like 1234"
-    });
+    /* this.onInputChange({
+      text: "book fightclub"//"I want to read a book like fightclub"//"I want to read a book like 1234"
+    }); */
   }
 
   onInputChange(input) {
@@ -48,15 +53,24 @@ class App extends Component {
   }
 
   render() {
-    // TODO: Examples inside Input component
+    // TODO: Examples inside Input component like a dropdown
     const example = this.state.examples ? this.state.examples[this.state.examplesIndex] : null;
-    const label = this.state.input ? null : "Please";
+    const label = null;
+
+    const InputProps = {
+      onInputChange: this.onInputChange.bind(this),
+      placeholder: example,
+      label: label,
+      suggestions: this.state.examples
+    };
 
     // TODO: Pretty logo
     return (
       <div className="component-App">
         <div className="component-App__content">
-          <Input onInputChange={this.onInputChange.bind(this)} placeholder={example} label={label} />
+          <div className="main">
+            <Input {...InputProps} />
+          </div>
           <Settings onSettingsChange={this.onSettingsChange.bind(this)} />
           <Conversation input={this.state.input} settings={this.state.settings} />
         </div>
@@ -75,20 +89,19 @@ TODO: REALLY REALLY GOOD DOCUMENTATION PAGE
 TODO: https://dev.to/andraconnect/augmented-reality-in-10-lines-of-html
 TODO: FIX CONSOLE ERRORS!!!!!
 TODO: RECOMANDARIIII!!!!!
-TODO: Use Monstreall font (same one as photon web setup)
 TODO: Make the app work offline (+++++)
 TODO: Improve logo
-TODO: Make input & button the same length as the conversation box
 TODO: Name & Favicon
 TODO: customizableParams (list of params that can be passed & stored in Firebase, from the settings view)
-TODO: Color picker to change chat colors
 TODO: Demo for Particle with a plugin (emit a http event, turn on a internet button led rid)
-TODO: Add "set=$paramX" option to options, they will update the value of the param in state { "set=$paramX,1234",}
 TODO: Make it more conversational
 TODO: 100% test coverage (https://www.codacy.com/app/spencerkelly86/compromise/dashboard)
-*/
-
-/*
+TODO: Add popup hints like Hi, you could try that
+TODO: Interactive guide? Nice
+TODO: Handle stuff like 'Hello', 'Hi' (plugin with that)
+TODO: Generate different gradient for background (https://uigradients.com) (warmer)
+TODO: plugin 'recipes like pasta'
+TODO: Add linter
 - ISBN12345
 Cool! This is a book about Robin Hood
 Did you like it?
@@ -110,9 +123,7 @@ Debouce on input that triggers the parsing of the plugins
 https://www.npmjs.com/package/huh
 DESCRIPTIVE ERRORS1!!!!
 tot proiectul sa fie un json (logo, style etc tot)
-*/
 
-/*
 TODO: Presentation
 
 Lots of use cases (maybe kickstarter video)

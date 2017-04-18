@@ -23,26 +23,34 @@ h1 {
 
 .component-Input {
   margin-bottom: 0px;
-  width: 50vw;
+  width: 100%;
   border-bottom: solid 2px #c9c9c9;
   padding-bottom: 5px;
   position: relative;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .component-Input .label {
   font-size: 40px;
-  color: rgba(120, 120, 120, 0.1);
+  color: rgba(200, 200, 200, 0.1);
   margin-left: -2px;
 }
 
 .component-Input input {
-  width: 90%;
+  padding-right: 50px;
+  width: 80%;
   font-size: 40px;
   padding: 0px;
   border: none;
   transition: border 0.3s;
   outline-width: 0;
   background: transparent;
+  color: white;
+  position: relative;
+  text-overflow: ellipsis;
 }
 
 .component-Conversation__step .component-Input {
@@ -64,15 +72,39 @@ h1 {
   color: black;
 }
 
-.component-Input__send {
-  width: 10%;
+.component-Input__extra {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.component-Input__extra .dropzone {
+  margin-right: 10px;
+}
+
+.component-Input__extra i {
   font-size: 24px;
+  color: white;
   cursor: pointer;
-  color: rgb(100, 100, 100);
-  transition-duration: 0.4s;
+  transition-duration: 0.2s;
+}
+
+.component-Input__extra i:hover {
+  color: rgb(240, 240, 240);
+}
+
+.component-Input__send {
   text-align: right;
   display: inline-block;
-  margin-top: -10px;
+  position: relative;
+}
+
+.main .component-Input input {
+  z-index: 4;
+}
+
+.main .component-Input__send {
+  z-index: 4;
 }
 
 .component-Conversation__step .component-Input__send {
@@ -81,10 +113,6 @@ h1 {
 
 .component-Input__cancel {
   cursor: pointer;
-}
-
-.component-Input__send:hover {
-  color: rgb(30, 30, 30);
 }
 
 .component-Input input {
@@ -110,14 +138,27 @@ html, body, #root, .component-App {
 .component-Conversation {
 }
 
+body {
+  background: #CB356B;  /* fallback for old browsers */
+  background: -webkit-linear-gradient(to right, #BD3F32, #CB356B);  /* Chrome 10-25, Safari 5.1-6 */
+  background: linear-gradient(to right, #BD3F32, #CB356B); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+
+  background: #c0392b;  /* fallback for old browsers */
+  background: -webkit-linear-gradient(to right, #8e44ad, #c0392b);  /* Chrome 10-25, Safari 5.1-6 */
+  background: linear-gradient(to right, #8e44ad, #c0392b); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+}
+
 .component-Conversation__step {
   background-color: #c0392b;
+  background-color: white;
+
   border-radius: 5px;
   position: relative;
   color: white;
   width: 100%;
   line-height: 1.5;
   margin-top: 20px;
+  color: black;
 }
 
 .history .component-Conversation__step {
@@ -136,13 +177,25 @@ html, body, #root, .component-App {
   height: 10px;
   transform: rotate(45deg);
   background-color: #c0392b;
+  background-color: white;
   position: absolute;
   left: -5px;
   top: 50%;
   margin-top: -5px;
 }
 
+.null {
+  left: -8px;
+
+  border-bottom: 2px solid black;
+  border-left: 2px solid black;
+  border-top: 2px solid black;
+  border-right: 2px solid black;
+  right: -8px;
+}
+
 .component-Conversation__step.right::before {
+  border: 0px;
   left: auto;
   right: -5px;
 }
@@ -177,13 +230,15 @@ html, body, #root, .component-App {
   background-color: #f7f7f7;
   color: #333;
   border-radius: 5px;
-  border: solid 1px #c7c7c7;
   margin-right: 10px;
   font-size: 12px;
   font-weight: 700;
   text-transform: uppercase;
   cursor: pointer;
   transition-duration: 0.2s;
+  background-color: #3498db;
+  color: white;
+
 }
 
 .btn:hover {
@@ -226,4 +281,62 @@ a, a:hover, a:active, a:visited, a:focus {
 
 .btn:focus, input:focus, select:focus {
   outline: 0;
+}
+
+.component-Input__suggestions {
+  width: 100%;
+  position: absolute;
+  top: 110%;
+  left: 0;
+  z-index: 3;
+  background-color: white;
+}
+
+.component-Input__suggestions__suggestion {
+  padding: 10px 5px;
+  background-color: rgba(200, 200, 200, 0.1);
+  margin-bottom: 5px;
+  border: 1px solid rgba(200, 200, 200, 0.2);
+  cursor: pointer;
+  transition-duration: 0.2s;
+  position: relative;
+  z-index: 4;
+}
+
+.component-Input__suggestions__suggestion:first-of-type {
+  margin-top: 5px;
+}
+
+.component-Input__suggestions__suggestion:hover {
+  background-color: rgba(200, 200, 200, 0.3);
+}
+
+.component-Input__suggestions__suggestion h3 {
+  margin: 0px;
+}
+
+::-webkit-input-placeholder { /* Chrome */
+  color: rgba(255, 255, 255, 0.5);
+}
+:-ms-input-placeholder { /* IE 10+ */
+  color: rgba(255, 255, 255, 0.5);
+}
+::-moz-placeholder { /* Firefox 19+ */
+  color: rgba(255, 255, 255, 0.5);
+  opacity: 1;
+}
+:-moz-placeholder { /* Firefox 4 - 18 */
+  color: rgba(255, 255, 255, 0.5);
+  opacity: 1;
+}
+
+.overlay-darken {
+  background-color: rgba(52, 73, 94, 0.8);
+  width: 100%;
+  height: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 2;
+  transition: background-color 5s ease;
 }

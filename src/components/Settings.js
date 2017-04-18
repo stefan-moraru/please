@@ -18,13 +18,39 @@ export default class Settings extends Component {
         //TODO: visit #Noun will show google maps
         //TODO: Add 'cancel' as conversation step to represent canceling
         //TODO: Add parameter regexp so you can do singular words on inputs
+        'food': {
+          title: 'All about food',
+          examples: [
+            'food like pasta',
+            'i want to eat something like meatloaf',
+            'i am hungry for chips'
+          ],
+          match: {
+            'food like {food}': {
+              step: 1,
+              extraMatches: [
+                'i want to eat something like {food}',
+                'i am hungry for {food}'
+              ]
+            }
+          },
+          conversation: {
+            1: {
+              text: 'Hello, dear hungry friend!'
+            }
+          }
+        },
         'book': {
           title: 'Book recommendation',
-          examples: ['i want to read a book like 978-0141329383'],
+          examples: [
+            'i want to read a book like 978-0141329383',
+            'book like 978-0141329383',
+            'recommend me a book like 978-0141329383'
+          ],
           match: {
             'i want to read book like {isbn}': {
               step: 1,
-              extraMatches: ['book {isbn}']
+              extraMatches: ['book {isbn}', 'recommend me a book like {isbn}']
             }
             //TODO: Transform to object
           },

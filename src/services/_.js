@@ -1,17 +1,79 @@
 import nlp from 'compromise';
 import stringSimilarity from 'string-similarity';
+import request from 'superagent';
 import _get from 'lodash.get';
+import _shuffle from 'lodash.shuffle';
+
+const GOOGLE_API_KEY = "AIzaSyDScKGu3VK7x27dk0E4bmdiSmP9dsC-cLU";
+
+const infoFromKnowledgeGraph = (ids, query) => {
+  let URL = "https://kgsearch.googleapis.com/v1/entities:search?"
+
+  URL = `${URL}&key=${GOOGLE_API_KEY}`;
+
+  if (ids) {
+    URL = `${URL}&ids=${ids}`;
+  }
+
+  if (query) {
+    URL = `${URL}&query=${query}`;
+  }
+
+  return new Promise((resolve, reject) => {
+    request
+    .get(URL)
+    .set('Content-Type', 'application/json')
+    .end(function(err, resp) {
+      if (err) {
+        return reject(err);
+      }
+
+      let result = {};
+
+      try {
+        const returned = resp.body.itemListElement[0].result;
+
+        result = {
+          category: returned.description.toLowerCase(),
+          categoryDescription: returned.detailedDescription.articleBody,
+          image: returned.image.url,
+          name: returned.name.toLowerCase()
+        };
+      } catch(e) {
+        return reject(e);
+      }
+
+      return resolve(result);
+    });
+
+  });
+};
 
 //TODO: Handle empty params (replacing them results in undefined sometimes, or they remain as {imdb})
 
 const examplesFromPlugins = (plugins) => {
   let examples = null;
 
+  console.log('_ exmaplesFromPlugins', plugins);
+
   if (plugins) {
     examples = Object.keys(plugins)
-    .map(key => plugins[key])
-    .reduce((a, b) => (a.examples || []).concat(b.examples || []), []);
+    .map(key => plugins[key].examples)
+    .reduce((ex, a) => ex.concat(a || []), [])
+    .sort((a, b) => {
+      const rand = Math.floor(Math.random() * 10) + 1;
+
+      if (rand > 8) {
+        return 1;
+      } else if (rand > 4) {
+        return 0;
+      } else {
+        return -1;
+      }
+    })
   }
+
+  console.log(examples);
 
   return examples;
 };
@@ -120,7 +182,6 @@ const pluginMatchesForInput = (plugins, input) => {
       res = (res || []).concat(matchFromString(match, matchKey, input, plugin, pluginKey));
 
       if (match.extraMatches) {
-        console.log('extraMatches', match.extraMatches);
         res = (res || []).concat(match.extraMatches.map(extraMatch => {
           return matchFromString(match, extraMatch, input, plugin, pluginKey);
         }));
@@ -227,5 +288,6 @@ export default {
   pluginAtStep,
   sortOptions,
   pluginWithUpdatedParam,
-  pluginWithUpdatedParamAndStep
+  pluginWithUpdatedParamAndStep,
+  infoFromKnowledgeGraph
 };

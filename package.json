@@ -7,6 +7,7 @@
     "lodash.get": "^4.4.2",
     "react": "^15.4.2",
     "react-dom": "^15.4.2",
+    "react-dropzone": "^3.12.4",
     "string-similarity": "^1.1.0",
     "stubby": "^4.0.0",
     "superagent": "^3.5.2"
