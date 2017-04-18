@@ -3,13 +3,36 @@ import _ from '../services/_.js';
 import _get from 'lodash.get';
 import Input from './Input';
 
-const OptionButton = ({ text, href, onClick, params, generate }) => {
+const OptionButton = ({ text, href, image, onClick, params, generate, generateLimit, generateDefault }) => {
 	let rendered = null;
   let optionContent = text;
+	let imageStyle = null;
+	let imageStyleSpan = null;
+
+	if (image) {
+		imageStyle = {
+			backgroundImage: `url(${image})`,
+			backgroundSize: 'cover',
+			width: '200px',
+			height: '200px',
+			position: 'relative'
+		};
+
+		imageStyleSpan = {
+			backgroundColor: 'rgba(0, 0, 0, 0.8)',
+	    display: 'block',
+	    position: 'absolute',
+	    bottom: '10px',
+	    padding: '10px',
+	    borderRadius: '5px',
+			maxWidth: '80%',
+			wordWrap: 'break-word'
+		};
+	}
 
   rendered = (
-    <button className="btn" onClick={onClick}>
-      {optionContent}
+    <button className="btn" onClick={onClick} style={imageStyle}>
+      <span style={imageStyleSpan}>{_.removeHTMLEntities(optionContent)}</span>
     </button>
   );
 
@@ -17,7 +40,7 @@ const OptionButton = ({ text, href, onClick, params, generate }) => {
     const _href = _.substituteParamsInString(params, href);
 
     if (_href.indexOf('http') === -1) {
-      _href = `http://${href}`;
+      _href = `http://${_href}`;
     }
 
     rendered = (
@@ -32,19 +55,29 @@ const OptionButton = ({ text, href, onClick, params, generate }) => {
 
 		const param = params[generate.replace(/[{}]/g, '')];
 
-		if (param && param.value) {
+		if (param && param.value && param.value.length > 0) {
 			const buttons = param.value;
 
-			buttons = buttons.map(val => {
-				console.log('val', val);
+			buttons = buttons
+			.sort((a, b) => {
+				if (_get(a, image)) return -1;
+				if (_get(b, image)) return 1;
+				return 0;
+			});
+
+			if (generateLimit) {
+				buttons = buttons.slice(0, generateLimit);
+			}
+
+			buttons = buttons
+			.map(val => {
 				const gprops = {
 					text: _get(val, text),
 					href: _get(val, href),
+					image: _get(val, image),
 	        onClick: onClick,
 					parms: params
 				};
-
-				console.log('gprops', gprops);
 
 				return <OptionButton {...gprops} />;
 			});
@@ -52,6 +85,14 @@ const OptionButton = ({ text, href, onClick, params, generate }) => {
 			rendered = (
 				<div>
 					{buttons}
+				</div>
+			);
+		} else {
+			const def = <h6>{generateDefault || 'No results'}</h6>;
+
+			rendered = (
+				<div>
+					{def}
 				</div>
 			);
 		}

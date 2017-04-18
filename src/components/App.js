@@ -61,7 +61,8 @@ class App extends Component {
       onInputChange: this.onInputChange.bind(this),
       placeholder: example,
       label: label,
-      suggestions: this.state.examples
+      suggestions: this.state.examples,
+      suggestionsEnabled: true
     };
 
     // TODO: Pretty logo

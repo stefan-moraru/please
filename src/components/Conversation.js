@@ -5,6 +5,7 @@ import request from 'superagent';
 import _get from 'lodash.get';
 import _ from '../services/_';
 import { OptionButton, OptionIcon, OptionInput } from './Option';
+import superagentjsonp from 'superagent-jsonp';
 
 // TODO: Fix all Console warnings & errors
 // TODO: Daca schimb textul din inputul mare, nu se mai face query (queryDone ramane pe true, nu se schimba pluginul sau ceva)
@@ -73,8 +74,11 @@ export default class Conversation extends Component {
 			const props = {
 				text: option.button.text,
 				href: option.button.href,
+        image: option.button.image,
         onClick: this.changeStep.bind(this, option),
 				generate: option.button.generate,
+        generateLimit: option.button.generateLimit,
+        generateDefault: option.button.generateDefault,
 				params: params
 			};
 
@@ -98,7 +102,7 @@ export default class Conversation extends Component {
     }
 
 		const renderedOptionTitle = !option.title ? null : (
-			<h4 className="u-m-0">{option.title}</h4>
+			<h4 className="u-m-b-10 u-m-t-0">{option.title}</h4>
 		);
 
     return (
@@ -153,9 +157,14 @@ export default class Conversation extends Component {
         const query = step.query;
 
         request[query.method.toLowerCase()](query.url)
+        .use(superagentjsonp({
+          timeout: 10000
+        }))
         .query(_.substituteParamsInString(params, query.params))
         .then((response) => {
           const data = response.body;
+
+          console.log('got data from query', data);
 
           return this.updateParamFromQuery(query.fill.replace(/[{}]/g, ''), _get(data, query.responsePath), this.state.currentPlugin, stepKey);
         }, (error) => {
@@ -163,6 +172,14 @@ export default class Conversation extends Component {
           // TODO: Failsafe
         })
       }
+    }
+
+    if (step.jumpToStep && !fromHistory) {
+      setTimeout(() => {
+        this.changeStep({
+          step: step.jumpToStep
+        });
+      }, step.jumpToStepDelay || 1000);
     }
 
     const contentBot = (
@@ -189,7 +206,7 @@ export default class Conversation extends Component {
     );
 
     const _contentOptions = !contentOptions ? null : (
-      <RenderWithTimeout timeout={1500}>
+      <RenderWithTimeout timeout={1500} enabled={!fromHistory}>
         <div className="component-Conversation__step right">
           <div className="component-Conversation__step__content">
             {contentUser}
@@ -216,7 +233,6 @@ export default class Conversation extends Component {
     if (plugin && plugin.conversation) {
       if (plugin.history) {
         history = plugin.history.map(snapshot => {
-					console.log(snapshot.params);
           return this.renderConversationStep(snapshot.step, snapshot.plugin.conversation[snapshot.step], snapshot.params, snapshot.plugin, settings, true);
         }).reverse();
       }

@@ -6,6 +6,12 @@ import _shuffle from 'lodash.shuffle';
 
 const GOOGLE_API_KEY = "AIzaSyDScKGu3VK7x27dk0E4bmdiSmP9dsC-cLU";
 
+const removeHTMLEntities = (string = '') => {
+  string = string.replace(/&amp;/g, '&');
+
+  return string;
+};
+
 const infoFromKnowledgeGraph = (ids, query) => {
   let URL = "https://kgsearch.googleapis.com/v1/entities:search?"
 
@@ -54,26 +60,11 @@ const infoFromKnowledgeGraph = (ids, query) => {
 const examplesFromPlugins = (plugins) => {
   let examples = null;
 
-  console.log('_ exmaplesFromPlugins', plugins);
-
   if (plugins) {
-    examples = Object.keys(plugins)
+    examples = _shuffle(Object.keys(plugins)
     .map(key => plugins[key].examples)
-    .reduce((ex, a) => ex.concat(a || []), [])
-    .sort((a, b) => {
-      const rand = Math.floor(Math.random() * 10) + 1;
-
-      if (rand > 8) {
-        return 1;
-      } else if (rand > 4) {
-        return 0;
-      } else {
-        return -1;
-      }
-    })
+    .reduce((ex, a) => ex.concat(a || []), []));
   }
-
-  console.log(examples);
 
   return examples;
 };
@@ -82,20 +73,22 @@ const stringWithoutArticles = (string) => {
   return string.replace(/ (a|an|the) /g, ' ');
 };
 
+//TODO: Conversation step jump to another one after timeout
+
 const substituteParamInString = (name, value, string = '') => {
   string = string
   .split(' ')
   .map(word => {
     if (word.indexOf('{') !== -1 && word.indexOf('}') !== -1) {
-      let paramName = word.split('#')[0];
-      const get = word.split('#')[1];
+      // Word could be {isbn} or www.emag.ro/{isbn}
+      let param = word.replace(/.*{/g, '{').replace(/}.*/g, '}');
 
-      paramName = paramName.replace(/.*{/g, '');
-      paramName = paramName.replace(/}.*/g, '');
+      const paramName = (param.split('#')[0] || '').replace(/[{}]/g, '');
+      const get = (param.split('#')[1] || '').replace(/[{}]/g, '');
 
       if (name === paramName) {
         if (get) {
-          value = _get(value, get.replace(/[{}]/g, ''));
+          value = _get(value, get);
           word = word.replace(/#.*}/g, '}');
         }
 
@@ -119,6 +112,7 @@ const substituteParamInString = (name, value, string = '') => {
 };
 
 const substituteParamsInString = (params = [], string = '') => {
+  console.log('substituteParamInString', params, string);
   return Object.keys(params).reduce((str, paramName) => {
     return substituteParamInString(paramName, params[paramName].value, str);
   }, string);
@@ -230,7 +224,9 @@ const pluginAtStep = (plugin, option) => {
 
     plugin.step = option.step;
 
-    plugin.conversation[plugin.step].queryDone = false;
+    if (plugin.conversation[plugin.step]) {
+      plugin.conversation[plugin.step].queryDone = false;
+    }
 
     const query = plugin.conversation[plugin.step].query;
 
@@ -278,6 +274,7 @@ const pluginWithUpdatedParamAndStep = (plugin, stepKey, paramName, value) => {
 };
 
 export default {
+  removeHTMLEntities,
 	examplesFromPlugins,
 	stringWithoutArticles,
 	substituteParamsInString,

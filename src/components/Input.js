@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import Dropzone from 'react-dropzone';
 import request from 'superagent';
+import stringSimilarity from 'string-similarity';
 import _ from '../services/_';
 
 const GOOGLE_API_KEY = "AIzaSyDScKGu3VK7x27dk0E4bmdiSmP9dsC-cLU";
@@ -80,9 +81,14 @@ class Input extends Component {
   }
 
   renderSuggestions(suggestions = []) {
-    suggestions = suggestions.map(suggestion => (
-      <div className="component-Input__suggestions__suggestion" onMouseDown={this.onInputTextChangedToValueSubmit.bind(this, suggestion)}>
-        <h3>{suggestion}</h3>
+    suggestions = suggestions.map(suggestion => Object.assign({}, suggestion, {
+      suggestion: suggestion,
+      probability: stringSimilarity.compareTwoStrings(this.state.inputText, suggestion)
+    }))
+    .sort((a, b) => a.probability < b.probability)
+    .map(suggestion => (
+      <div className="component-Input__suggestions__suggestion" onMouseDown={this.onInputTextChangedToValueSubmit.bind(this, suggestion.suggestion)}>
+        <h3>{suggestion.suggestion}</h3>
       </div>
     ));
 
@@ -175,7 +181,7 @@ class Input extends Component {
     //TODO: When typing inside the big input, add overlay to body (under the input and suggestions, that will darken the page)
     //TODO: Show suggestions on focus, hide on blur
 
-    const suggestions = this.state.suggestionsVisible ? this.renderSuggestions(this.props.suggestions) : null;
+    const suggestions = (this.state.suggestionsVisible && this.props.suggestionsEnabled) ? this.renderSuggestions(this.props.suggestions) : null;
 
     const inputProps = {
       type: "text",
@@ -193,7 +199,7 @@ class Input extends Component {
       onClick: this.onInputSubmit.bind(this)
     };
 
-    const overlayDarken = !this.state.suggestionsVisible ? null : (
+    const overlayDarken = !(this.state.suggestionsVisible && this.props.suggestionsEnabled) ? null : (
       <div className="overlay-darken"></div>
     );
 
@@ -225,7 +231,8 @@ class Input extends Component {
 
 Input.defaultProps = {
   onInputChange: () => {},
-  onInputSubmit: () => {}
+  onInputSubmit: () => {},
+  suggestionsEnabled: false
 };
 
 export default Input;

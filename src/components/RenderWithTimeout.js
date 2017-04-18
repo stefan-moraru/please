@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 
-export default class RenderWithTimeout extends Component {
+class RenderWithTimeout extends Component {
   state = {
     visible: false,
     timeout: null
@@ -41,12 +41,22 @@ export default class RenderWithTimeout extends Component {
   render() {
     let rendered = null;
 
-    if (this.state.visible || this.props.enabled || true) {
-      rendered = this.props.children;
+    if (this.props.enabled) {
+      if (this.state.visible) {
+        rendered = this.props.children;
+      } else {
+        rendered = this.props.loader ? <div className="loader"></div> : null;
+      }
     } else {
-      rendered = this.props.loader ? <div className="loader"></div> : null;
+      rendered = this.props.children;
     }
 
     return rendered;
   }
 }
+
+RenderWithTimeout.defaultProps = {
+  enabled: true
+};
+
+export default RenderWithTimeout;

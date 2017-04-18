@@ -55,21 +55,30 @@ h1 {
 
 .component-Conversation__step .component-Input {
   width: 100%;
-  border-radius: 5px;
-  padding-bottom: 0px;
   background-color: white;
   color: black;
-  padding: 10px;
   box-sizing: border-box;
+  padding-bottom: 0px;
+  padding-left: 0px;
 }
 
 .component-Conversation__step .component-Input input {
-  font-size: 12px;
+  font-size: 16px;
+  color: black;
 }
 
 .component-Conversation__step .component-Input .label {
   font-size: 14px;
   color: black;
+}
+
+.component-Conversation__step .component-Input__extra i {
+  color: rgba(0, 0, 0, 0.5);
+  font-size: 20px;
+}
+
+.component-Conversation__step .component-Input__send:hover {
+  color: rgba(0, 0, 0, 0.9);
 }
 
 .component-Input__extra {
@@ -93,22 +102,12 @@ h1 {
   color: rgb(240, 240, 240);
 }
 
-.component-Input__send {
-  text-align: right;
-  display: inline-block;
-  position: relative;
-}
-
 .main .component-Input input {
   z-index: 4;
 }
 
 .main .component-Input__send {
   z-index: 4;
-}
-
-.component-Conversation__step .component-Input__send {
-  font-size: 20px;
 }
 
 .component-Input__cancel {
@@ -133,6 +132,8 @@ html, body, #root, .component-App {
 .component-App__content {
   width: 50vw;
   margin: auto;
+  padding-top: 50px;
+  padding-bottom: 50px;
 }
 
 .component-Conversation {
@@ -224,13 +225,26 @@ body {
   margin: 0px;
 }
 
+.u-m-15 {
+  margin-bottom: 15px;
+}
+
+.u-m-t-0 {
+  margin-top: 0px;
+}
+
+.u-m-b-10 {
+  margin-bottom: 10px;
+}
+
 .btn {
   padding: 10px;
   border: 0px;
   background-color: #f7f7f7;
   color: #333;
   border-radius: 5px;
-  margin-right: 10px;
+  margin: 10px;
+  margin-left: 0px;
   font-size: 12px;
   font-weight: 700;
   text-transform: uppercase;
@@ -238,11 +252,10 @@ body {
   transition-duration: 0.2s;
   background-color: #3498db;
   color: white;
-
 }
 
 .btn:hover {
-  background-color: rgb(230, 230, 230);
+  background-color: rgba(52, 152, 219, 0.9)
 }
 
 .component-Conversation__step__options {
@@ -269,7 +282,9 @@ a, a:hover, a:active, a:visited, a:focus {
   margin-right: 10px;
   width: 10px;
   animation: rotate 0.8s infinite linear;
-  border: 2px solid white;
+  border-width: 2px;
+  border-color: #43cea2;  /* fallback for old browsers */
+  border-style: solid;
   border-right-color: transparent;
   border-radius: 50%;
 }
@@ -290,6 +305,8 @@ a, a:hover, a:active, a:visited, a:focus {
   left: 0;
   z-index: 3;
   background-color: white;
+  height: 205px;
+  overflow-y: auto;
 }
 
 .component-Input__suggestions__suggestion {
@@ -328,6 +345,19 @@ a, a:hover, a:active, a:visited, a:focus {
 :-moz-placeholder { /* Firefox 4 - 18 */
   color: rgba(255, 255, 255, 0.5);
   opacity: 1;
+}
+
+.component-Conversation__step .component-Input ::-webkit-input-placeholder {
+  color: rgba(0, 0, 0, 0.3);
+}
+.component-Conversation__step .component-Input :-ms-input-placeholder {
+  color: rgba(0, 0, 0, 0.3);
+}
+.component-Conversation__step .component-Input ::-moz-placeholder {
+  color: rgba(0, 0, 0, 0.3);
+}
+.component-Conversation__step .component-Input :-moz-placeholder {
+  color: rgba(0, 0, 0, 0.3);
 }
 
 .overlay-darken {

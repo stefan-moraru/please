@@ -21,6 +21,7 @@ export default class Settings extends Component {
         //TODO: Add parameter regexp so you can do singular words on inputs
         'food': {
           title: 'All about food',
+          image: 'https://cdn0.iconfinder.com/data/icons/kameleon-free-pack-rounded/110/Food-Dome-512.png',
           examples: [
             'food like pasta',
             'i want to eat something like meatloaf',
@@ -28,7 +29,7 @@ export default class Settings extends Component {
           ],
           match: {
             'food like {food}': {
-              step: 1,
+              step: 'initial',
               extraMatches: [
                 'i want to eat something like {food}',
                 'i am hungry for {food}'
@@ -36,8 +37,54 @@ export default class Settings extends Component {
             }
           },
           conversation: {
-            1: {
-              text: 'Hello, dear hungry friend!'
+            initial: {
+              text: 'Hello, dear hungry friend!',
+              jumpToStep: 'search',
+              jumpToStepDelay: 1000
+            },
+            search: {
+              text: "I see that you are looking for {food}-like food. Amazing! We've got exactly what you need",
+              query: {
+                url: 'http://www.recipepuppy.com/api/?callback=callback',
+                method: 'GET',
+                params: 'q={food}&limit=4',
+                fill: '{foodRecommendations}',
+                responsePath: 'results'
+              },
+              options: {
+								generated: {
+                  title: "Have a look at what we've found",
+									button: {
+										text: 'title',
+										href: 'href',
+                    image: 'thumbnail',
+										generate: '{foodRecommendations}',
+                    generateLimit: 4,
+                    generateDefault: 'Looks like we could not find anything'
+									},
+									step: 'done'
+                },
+                again: {
+                  title: 'Try again with a different search option',
+                  input: {
+                    placeholder: 'ex: chicken',
+                    param: '{food}'
+                  },
+                  step: 'search'
+                },
+                manual: {
+                  title: 'You can manually search for recipes online',
+                  button: {
+                    text: 'Find recipes online',
+                    href: 'www.food.com/search/{food}',
+                    image: ''
+                  },
+                  step: 'done'
+                },
+              }
+            },
+            done: {
+              text: 'Thanks for eating with us!'
             }
           }
         },
@@ -45,7 +92,6 @@ export default class Settings extends Component {
           title: 'Book recommendation',
           examples: [
             'i want to read a book like 978-0141329383',
-            'book like 978-0141329383',
             'recommend me a book like 978-0141329383'
           ],
           match: {
@@ -117,6 +163,8 @@ export default class Settings extends Component {
 
   render() {
 		//TODO: Settings panel with list of plugins and stuff (store them in firebase)
+    return null;
+
     return (
       <div>
         {/*<Hexagon backgroundUrl="" width="200" height="400" />
@@ -130,7 +178,7 @@ export default class Settings extends Component {
         <div className="hexagonsRow">
           <div className="hexagon"></div>
         </div>
-       
+
       </div>
     );
   }
