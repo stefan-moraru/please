@@ -3,6 +3,7 @@ import RenderWithTimeout from './RenderWithTimeout';
 import request from 'superagent';
 import _get from 'lodash.get';
 import ReactTooltip from 'react-tooltip';
+import ReactMarkdown from 'react-markdown';
 import _ from '../services/_';
 import { OptionButton, OptionIcon, OptionInput, OptionVideo } from './Option';
 import superagentjsonp from 'superagent-jsonp';
@@ -38,20 +39,34 @@ export default class Conversation extends Component {
     });
   }
 
-  renderConversationStepText(text, params) {
-    let contentText = null;
+  renderConversationStepText(text, markdown = false, params) {
+    let content = null;
 
-    if (text) {
-      text = _.substituteParamsInString(params, text);
+    text = _.substituteParamsInString(params, text);
 
-      contentText = (
-        <div>
-          <h4 className="u-m-0">{text}</h4>
-        </div>
-      );
+    if (text && markdown) {
+      const ReactMarkdownProps = {
+        className: "markdown u-m-0",
+        containerTagName: "div",
+        source: text
+      };
+
+      content = <ReactMarkdown {...ReactMarkdownProps} />;
+    } else {
+      content = <h4 className="u-m-0">{text}</h4>;
     }
 
-    return contentText;
+    return content;
+  }
+
+  renderConversationStepImage(image, params) {
+    let content = null;
+
+    if (image) {
+      content = <img src={image} />;
+    }
+
+    return content;
   }
 
   updateParamAndChangeStepFromInput(option, input) {
@@ -208,10 +223,12 @@ export default class Conversation extends Component {
 
   renderConversationStep(stepKey, step, params, plugin, settings, fromHistory = false) {
     let contentText = <h4>Thank you for using Please!</h4>;
+    let contentImage = null;
     let contentOptions = null;
 
     if (step) {
-      contentText = step.text ? this.renderConversationStepText(step.text, params) : null;
+      contentText = step.text ? this.renderConversationStepText(step.text, step.markdown, params) : null;
+      contentImage = step.image ? this.renderConversationStepImage(step.image, params) : null;
       contentOptions = step.options ? this.renderConversationStepOptions(step.options, params, step.optionsTitle) : null;
 
       if (step.query && !step.queryDone && !fromHistory) {
@@ -254,12 +271,17 @@ export default class Conversation extends Component {
       </div>
     );
 
-    const _contentText = !contentText ? null : (
-      <div className="component-Conversation__step">
+    const _contentTextClassname = "component-Conversation__step " + (contentImage ? "image" : "");
+
+    const _contentText = !(contentText || contentImage) ? null : (
+      <div className={_contentTextClassname}>
         <div className="component-Conversation__step__content">
           {contentBot}
           <RenderWithTimeout timeout={500} loader={true} enabled={!fromHistory}>
-            {contentText}
+            <div>
+              {contentText}
+              {contentImage}
+            </div>
           </RenderWithTimeout>
         </div>
       </div>

@@ -56,7 +56,8 @@ class RenderWithTimeout extends Component {
 }
 
 RenderWithTimeout.defaultProps = {
-  enabled: true
+  enabled: true,
+  children: null
 };
 
 export default RenderWithTimeout;

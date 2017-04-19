@@ -2,6 +2,8 @@
   "pluginMatchProbabilityThreshold": 0.3,
   "plugins": {
     "movies": {
+      "name": "movies",
+      "author": "stefan.moraru7@gmail.com",
       "title": "I <3 Movies",
 			"description": "Movie offers you can't refuse",
       "image": "http://icons.iconarchive.com/icons/designbolts/free-multimedia/1024/Clapper-icon.png",
@@ -16,12 +18,18 @@
       },
       "conversation": {
         "recommendations1": {
-          "text": "Show me the money!",
+          "text": "Show me the **money**!",
+          "markdown": true,
+          "jumpToStep": "recommendations15",
+          "jumpToStepDelay": 2000
+        },
+        "recommendations15": {
+          "image": "https://68.media.tumblr.com/3d1d8bb9936cbf28e6968f584e17dcd5/tumblr_nv2kw8bvQx1tq4of6o1_500.gif",
           "jumpToStep": "recommendations2",
           "jumpToStepDelay": 2000
         },
         "recommendations2": {
-          "text": "Let's find some good movies for you",
+          "text": "Cut! Let's find some good movies for you 🎥 🎬 🎞️",
           "jumpToStep": "recommendations3",
           "jumpToStepDelay": 2500
         },
@@ -40,6 +48,8 @@
       ]
     },
     "food": {
+      "name": "food",
+      "author": "stefan.moraru7@gmail.com",
       "title": "All about food",
 			"description": "Recommending you recipes and helping you to cook",
       "image": "https://cdn0.iconfinder.com/data/icons/kameleon-free-pack-rounded/110/Food-Dome-512.png",
@@ -153,6 +163,8 @@
       }
     },
     "book": {
+      "name": "book",
+      "author": "stefan.moraru7@gmail.com",
       "title": "Library",
 			"description": "Finding good books",
       "examples": [

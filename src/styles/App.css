@@ -121,6 +121,16 @@ h1 {
 .component-Input input {
 }
 
+.component-Conversation__step.image {
+  width: 45%;
+  min-width: 300px;
+}
+
+.component-Conversation__step.image img {
+  width: 100%;
+  border-radius: 5px;
+}
+
 html, body, #root, .component-App {
   height: 100%;
 }
@@ -225,6 +235,10 @@ body {
   right: -80px;
 }
 
+p {
+  margin: 0px;
+}
+
 .u-m-0 {
   margin: 0px;
 }
@@ -235,6 +249,10 @@ body {
 
 .u-m-t-0 {
   margin-top: 0px;
+}
+
+.u-m-t-10 {
+  margin-top: 10px;
 }
 
 .u-m-b-10 {
@@ -286,6 +304,7 @@ body {
 
 a, a:hover, a:active, a:visited, a:focus {
   text-decoration:none;
+  color: white;
 }
 
 .loader {
@@ -309,7 +328,7 @@ a, a:hover, a:active, a:visited, a:focus {
   margin-left: -5px;
 }
 
-.component-Input.disabled {
+.disabled {
   pointer-events: none;
   opacity: 0.05;
 }
@@ -474,6 +493,15 @@ iframe {
   padding: 50px;
 }
 
+.component-Settings__editor {
+  text-align: center;
+  padding: 50px;
+}
+
+.component-Settings__editor a {
+  text-decoration: underline;
+}
+
 .component-Settings__plugins {
   display: flex;
   flex-wrap: wrap;
@@ -523,7 +551,7 @@ iframe {
 
 .component-Settings__gear.close {
   top: 20px;
-  right: 30px;
+  right: 40px;
   font-size: 20px;
 }
 
@@ -545,4 +573,32 @@ iframe {
   .component-Conversation__step__bot {
     display: none;
   }
+}
+
+.markdown p, .markdown h1, .markdown h2, .markdown h3, .markdown h4, .markdown h5, .markdown h6 {
+  margin: 0px;
+  font-weight: 300;
+}
+
+#jsoneditor {
+  width: 60vw;
+  height: 400px;
+  margin: auto;
+  background-color: white;
+}
+
+.u-w-200 {
+  width: 200px;
+}
+
+.component-Settings__plugins__plugin {
+  position: relative;
+}
+
+.component-Settings__plugins__plugin__edit {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  opacity: 0.5;
+  cursor: pointer;
 }

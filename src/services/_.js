@@ -26,11 +26,15 @@ provider.setCustomParameters({
 });
 
 const fb_onValue = (ref, cb) => {
-  ref = firebase.database().ref(ref);
-
-  ref.on('value', (snapshot) => {
+  firebase.database().ref(ref)
+  .on('value', (snapshot) => {
     cb(snapshot.val());
   });
+};
+
+const fb_set = (ref, data) => {
+  firebase.database().ref(ref)
+  .set(data);
 };
 
 const fb_login = () => {
@@ -340,5 +344,6 @@ export default {
   pluginWithUpdatedParamAndStep,
   infoFromKnowledgeGraph,
   fb_login,
-  fb_onValue
+  fb_onValue,
+  fb_set
 };
