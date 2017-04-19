@@ -6,8 +6,8 @@ import Input from './Input';
 const OptionButton = ({ text, href, image, onClick  }) => {
 	let rendered = null;
   let optionContent = text;
-	let imageStyle = null;
-	let imageStyleSpan = null;
+	let imageStyle = {};
+	let imageStyleSpan = {};
 
 	if (image) {
 		imageStyle = {
@@ -65,7 +65,7 @@ const OptionVideo = ({ id }) => {
 	const iframeProps = {
 		width: '200px',
 		height: '200px',
-		frameborder: '0',
+		frameBorder: '0',
 		src: `https://www.youtube.com/embed/${id}`
 	};
 

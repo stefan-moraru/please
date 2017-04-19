@@ -1,4 +1,3 @@
-import nlp from 'compromise';
 import stringSimilarity from 'string-similarity';
 import request from 'superagent';
 import _get from 'lodash.get';
@@ -146,7 +145,7 @@ const matchFromString = (match, matchKey, input, plugin, pluginName) => {
   // TODO: Improve
   let _params = {};
 
-  const params = matchKey.split(' ')
+  matchKey.split(' ')
   .forEach((word, index) => {
     if (paramRegExp.test(word)) {
       _params[word.replace(/[{}]/g, '')] = {
@@ -209,11 +208,14 @@ const bestPluginMatch = (settings, input) => {
       history: []
     }, bestPlugin.plugin);
 
+    Object.keys(bestPlugin.plugin.conversation)
+    .forEach(key => {
+      currentPlugin.conversation[key].queryDone = false;
+    });
+
     currentPlugin.conversation.cancel = currentPlugin.conversation.cancel ? currentPlugin.conversation.cancel : {
       text: 'Oh no! Hopefully we were able to help'
     };
-
-    // TODO: Reset queryDone on all steps
   }
 
 	return Object.assign({}, currentPlugin);

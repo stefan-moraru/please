@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import RenderWithTimeout from './RenderWithTimeout';
-import Input from './Input';
 import request from 'superagent';
 import _get from 'lodash.get';
 import ReactTooltip from 'react-tooltip';
@@ -78,6 +77,14 @@ export default class Conversation extends Component {
 		return <OptionButton {...props} />;
   }
 
+  generateVideo(option, params) {
+    const props = {
+      id: option.video.id
+    };
+
+    return <OptionVideo {...props} />;
+  }
+
   // TODO: Stateless components for conversation steps
   renderOption(params, option) {
     let renderedOption = null;
@@ -101,11 +108,7 @@ export default class Conversation extends Component {
 
       renderedOption = <OptionInput {...props} />;
     } else if (option.video) {
-      const props = {
-        id: option.video.id
-      };
-
-      renderedOption = <OptionVideo {...props} />;
+			renderedOption = this.generateVideo(option, params);
     }
 
   	if (option.generate) {
@@ -114,7 +117,7 @@ export default class Conversation extends Component {
   		const param = params[option.generate.replace(/[{}]/g, '')];
 
   		if (param && param.value && param.value.length > 0) {
-  			const items = param.value;
+  			let items = param.value;
 
   			if (option.generateLimit) {
   				items = items.slice(0, option.generateLimit);
@@ -126,12 +129,18 @@ export default class Conversation extends Component {
             const newOption = Object.assign({}, option);
 
             newOption.button = Object.assign({}, option.button);
-
             newOption.button.text = _get(val, option.button.text);
             newOption.button.href = _get(val, option.button.href);
             newOption.button.image = _get(val, option.button.image);
 
             return this.generateButton(newOption, params);
+          } else if (option.video) {
+            const newOption = Object.assign({}, option);
+
+            newOption.video = Object.assign({}, option.video);
+            newOption.video.id = _get(val, option.video.id);
+
+            return this.generateVideo(newOption, params);
           }
 
           return val;

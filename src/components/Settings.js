@@ -93,15 +93,24 @@ export default class Settings extends Component {
             },
             helpcooking: {
               text: "Amazing! Do you need help cooking it?",
+              query: {
+                url: 'http://www.recipepuppy.com/api/?callback=callback',
+              	url: 'https://www.googleapis.com/youtube/v3/search?part=snippet&key=AIzaSyDScKGu3VK7x27dk0E4bmdiSmP9dsC-cLU&maxResults=5&type=video',
+                method: 'GET',
+                params: 'q=how+to+cook+{food}',
+                fill: '{videoCookingTutorials}',
+                responsePath: 'items'
+              },
               options: {
                 videotutorials: {
                   title: "Let's see if this helps",
-                  button: {
-                    text: 'Video tutorials',
-                    href: 'www.youtube.com/results?search_query=how+to+cook+{food}'
+                  video: {
+                    id: 'id.videoId'
                   },
+									generate: '{videoCookingTutorials}',
+                  generateLimit: 4,
+                  generateDefault: 'Looks like we could not find anything',
                   step: 'done'
-              		//https://www.googleapis.com/youtube/v3/search?part=snippet&key=AIzaSyDScKGu3VK7x27dk0E4bmdiSmP9dsC-cLU&maxResults=5&type=video
                 },
                 texttutorials: {
                   button: {

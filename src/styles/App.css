@@ -446,6 +446,11 @@ a, a:hover, a:active, a:visited, a:focus {
   border-top: 86.60px solid #64C7CC;
 }
 
+iframe {
+  border: 0px;
+  margin-right: 10px;
+}
+
 @media (max-width: 750px) {
   .component-App__content {
     width: 70vw;
