@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import ReactTooltip from 'react-tooltip';
 import _ from '../services/_';
 
 const JSONEditor = window.JSONEditor;
@@ -78,10 +79,20 @@ export default class Settings extends Component {
     });
   }
 
+  removePlugin(plugin) {
+    _.fb_set(`/plugins/${plugin.name}`, null);
+  }
+
   renderPlugin(plugin) {
     const edit = !this.sameUser(plugin.author) ? null : (
       <div className="component-Settings__plugins__plugin__edit" onClick={this.editPlugin.bind(this, plugin)}>
         <i className="ion-edit" />
+      </div>
+    );
+
+    const remove = !this.sameUser(plugin.author) ? null : (
+      <div className="component-Settings__plugins__plugin__remove" onClick={this.removePlugin.bind(this, plugin)}>
+        <i className="ion-trash-a" />
       </div>
     );
 
@@ -100,6 +111,7 @@ export default class Settings extends Component {
         </div>
 
         {edit}
+        {remove}
       </div>
     );
   }
@@ -250,6 +262,8 @@ export default class Settings extends Component {
       <div>
         {icon}
         {settings}
+
+        <ReactTooltip type="dark" effect="solid" />
       </div>
     );
   }
