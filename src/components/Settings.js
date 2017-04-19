@@ -36,7 +36,7 @@ const json = {
 
 export default class Settings extends Component {
   state = {
-    visible: true,//false,
+    visible: false,
     plugins: null,
     user: {
       "profile": {

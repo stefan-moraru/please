@@ -112,7 +112,8 @@
               "button": {
                 "text": "Recipes",
                 "href": "http://www.food.com/search/{food}"
-              }
+              },
+              "step": "done"
             }
           }
         },

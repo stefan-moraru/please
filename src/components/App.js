@@ -41,7 +41,8 @@ class App extends Component {
 
     this.setState({
       settings: settings,
-      examples: examples
+      examples: examples,
+      input: null
     });
   }
 
@@ -79,6 +80,7 @@ export default App;
 
 TODO: Settings: On new plugin Check for existing match and stuff
 TODO: Settings: On new plugin Show notifications to user (it was created / error)
+TODO: Settings: Remove plugin
 TODO: Notification system
 TODO: Create function for replacing { } with null
 TODO: Can we improve this? It currently works just for singleword params
