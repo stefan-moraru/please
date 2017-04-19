@@ -61,12 +61,12 @@ const OptionInput = ({ label, placeholder, onInputSubmit }) => (
   <Input label={label} placeholder={placeholder} onInputSubmit={onInputSubmit} imagePattern="{name}" />
 );
 
-const OptionVideo = ({ id }) => {
+const OptionVideo = ({ id, path }) => {
 	const iframeProps = {
 		width: '200px',
 		height: '200px',
 		frameBorder: '0',
-		src: `https://www.youtube.com/embed/${id}`
+		src: path ? path : `https://www.youtube.com/embed/${id}`
 	};
 
 	return <iframe {...iframeProps} />;

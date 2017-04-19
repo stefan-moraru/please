@@ -82,7 +82,7 @@ export default class Conversation extends Component {
 			text: option.button.text,
 			href: _.substituteParamsInString(params, option.button.href),
       image: option.button.image,
-      onClick: this.changeStep.bind(this, option),
+      onClick: option.button.maintainStep ? () => {} : this.changeStep.bind(this, option),
 			params: params
 		};
 
@@ -91,7 +91,8 @@ export default class Conversation extends Component {
 
   generateVideo(option, params) {
     const props = {
-      id: option.video.id
+      id: option.video.id,
+      path: option.video.path
     };
 
     return <OptionVideo {...props} />;
@@ -130,6 +131,10 @@ export default class Conversation extends Component {
   		if (param && param.value && param.value.length > 0) {
   			let items = param.value;
 
+        if (option.generateReverse) {
+          items = items.reverse();
+        }
+
   			if (option.generateLimit) {
   				items = items.slice(0, option.generateLimit);
   			}
@@ -143,6 +148,7 @@ export default class Conversation extends Component {
             newOption.button.text = _get(val, option.button.text);
             newOption.button.href = _get(val, option.button.href);
             newOption.button.image = _get(val, option.button.image);
+            newOption.button.maintainStep = option.button.maintainStep;
 
             return this.generateButton(newOption, params);
           } else if (option.video) {
@@ -150,6 +156,7 @@ export default class Conversation extends Component {
 
             newOption.video = Object.assign({}, option.video);
             newOption.video.id = _get(val, option.video.id);
+            newOption.video.path = _get(val, option.video.path);
 
             return this.generateVideo(newOption, params);
           }
@@ -205,7 +212,7 @@ export default class Conversation extends Component {
       });
     }
 
-    const title = optionsTitle ? <h4 className="u-m-0 u-m-b-15">{optionsTitle}</h4> : null;
+    const title = optionsTitle ? <h4 className="u-m-0 u-m-b-15">{_.substituteParamsInString(params, optionsTitle)}</h4> : null;
 
     return (
       <div className="component-Conversation__step__options">

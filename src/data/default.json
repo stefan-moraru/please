@@ -29,17 +29,115 @@
           "jumpToStepDelay": 2000
         },
         "recommendations2": {
-          "text": "Cut! Let's find some good movies for you 🎥 🎬 🎞️",
+          "text": "So you want something like {movie} 🎥 🎬. Let's see what good movies I can find for you",
           "jumpToStep": "recommendations3",
-          "jumpToStepDelay": 2500
-        },
-        "recommendations3": {
-          "text": "So you want something like {movie}. Let's see what I can find",
-          "jumpToStep": "recommendations4",
           "jumpToStepDelay": 3000
         },
-        "recommendations4": {
-          "text": "Heya"
+        "recommendations3": {
+          "text": "*Doing my best*",
+          "query": {
+          	"url": "https://tastedive.com/api/similar",
+            "method": "GET",
+            "params": "q=movie:{movie}&k=267728-Please-W515Q0LZ&type=movies&limit=10&info=1",
+            "fill": "{matchingMovies}",
+            "responsePath": "Similar.Results"
+          },
+					"optionsTitle": "🎥 Amazing movies like '{movie}' 🎥",
+          "options": {
+            "youtubevideos": {
+              "title": "Trailers",
+              "video": {
+                "path": "yUrl"
+              },
+							"generate": "{matchingMovies}",
+              "generateLimit": 4,
+              "generateDefault": "Looks like we could not find anything",
+              "step": "done"
+            },
+            "links": {
+							"title": "List of movies",
+							"button": {
+								"text": "Name",
+								"href": "wUrl",
+                "maintainStep": true
+							},
+							"generate": "{matchingMovies}",
+              "generateLimit": 4,
+              "generateDefault": "Looks like we could not find anything",
+              "step": "done"
+            },
+            "another": {
+              "title": "Don't see anything you would like?",
+              "button": {
+                "text": "Try again"
+              },
+              "step": "recommendations35"
+            },
+            "found": {
+              "title": "Do you have what to watch today?",
+              "button": {
+                "text": "Yes"
+              },
+              "step": "done"
+            }
+          }
+        },
+        "recommendations35": {
+          "text": "*Doing my best again*",
+          "query": {
+          	"url": "https://tastedive.com/api/similar",
+            "method": "GET",
+            "params": "q=movie:{movie}&k=267728-Please-W515Q0LZ&type=movies&limit=10&info=1",
+            "fill": "{matchingMovies}",
+            "responsePath": "Similar.Results"
+          },
+					"optionsTitle": "🎥 Amazing movies like '{movie}' 🎥",
+          "options": {
+            "youtubevideos": {
+              "title": "Trailers",
+              "video": {
+                "path": "yUrl"
+              },
+							"generate": "{matchingMovies}",
+              "generateLimit": 4,
+              "generateReverse": true,
+              "generateDefault": "Looks like we could not find anything",
+              "step": "done"
+            },
+            "links": {
+							"title": "List of movies",
+							"button": {
+								"text": "Name",
+								"href": "wUrl",
+                "maintainStep": true
+							},
+							"generate": "{matchingMovies}",
+              "generateLimit": 4,
+              "generateReverse": true,
+              "generateDefault": "Looks like we could not find anything",
+              "step": "done"
+            },
+            "found": {
+              "title": "Anything interesting?",
+              "button": {
+                "text": "Yup, found a good movie"
+              },
+              "step": "done"
+            },
+            "notfound": {
+              "title": "Nothing interesting?",
+              "button": {
+                "text": "Sadly, didn't find a good movie"
+              },
+              "step": "doneNot"
+            }
+          }
+        },
+        "done": {
+          "text": "Looks like we made you an offer you couldn't refuse"
+        },
+        "doneNot": {
+          "text": "The force was not strong with you, unfortunately. See you soon, young padawan"
         }
       },
       "examples": [
@@ -133,7 +231,8 @@
 							"button": {
 								"text": "title",
 								"href": "href",
-                "image": "thumbnail"
+                "image": "thumbnail",
+                "maintainStep": true
 							},
 							"generate": "{foodRecommendations}",
               "generateLimit": 4,

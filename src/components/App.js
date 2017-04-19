@@ -78,10 +78,13 @@ export default App;
 /*
 //http://tastedive.com/api/similar'
 
+TODO: Better hover css
+TODO: Demo for Particle with a plugin (emit a http event, turn on a internet button led rid)
+TODO: Move all icons/images to local files
+TODO: visit #Noun will show google maps
 TODO: Settings: It does not work without any plugins
 TODO: Settings: On new plugin Check for existing match and stuff
 TODO: Settings: On new plugin Show notifications to user (it was created / error)
-TODO: Settings: Remove plugin
 TODO: Notification system
 TODO: Create function for replacing { } with null
 TODO: Can we improve this? It currently works just for singleword params
@@ -92,7 +95,6 @@ TODO: REALLY REALLY GOOD DOCUMENTATION PAGE
 TODO: https://dev.to/andraconnect/augmented-reality-in-10-lines-of-html
 TODO: FIX CONSOLE ERRORS!!!!!
 TODO: Make the app work offline (+++++)
-TODO: Demo for Particle with a plugin (emit a http event, turn on a internet button led rid)
 TODO: 100% test coverage (https://www.codacy.com/app/spencerkelly86/compromise/dashboard)
 TODO: Add popup hints like Hi, you could try that
 TODO: Interactive guide? Nice
@@ -104,16 +106,12 @@ TODO: HAVE LONG MATCHES! Important for calculating match probability
 TODO: Move step.query query to _
 TODO: Failsafe for query errors
 TODO: Stateless components for conversation steps
-TODO: Better hover css
 TODO: Find even more inputs? (files? or something)
-TODO: https://dev.to/andraconnect/augmented-reality-in-10-lines-of-html
 TODO: Location app, npl has .places()
-TODO: visit #Noun will show google maps
 TODO: Add parameter regexp so you can do singular words on inputs
 TODO: Settings panel with list of plugins and stuff (store them in firebase)
 TODO: Improve naming of 'responsePath'
 TODO: Transform to object
-TODO: Move all icons/images to local files
 TODO: Generate order
 - ISBN12345
 Cool! This is a book about Robin Hood
@@ -149,4 +147,5 @@ ESC press on settings => hidding settings
 Suporta markdown in text la optiuni
 Suporta emoji in text la optiuni
 Suporta imagini la optiuni
+De aratat cu responsePath, ca stie sa ia ceva anume din raspuns (si geturile in general)
 */
