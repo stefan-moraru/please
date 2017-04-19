@@ -78,6 +78,7 @@ export default App;
 /*
 //http://tastedive.com/api/similar'
 
+TODO: Settings: It does not work without any plugins
 TODO: Settings: On new plugin Check for existing match and stuff
 TODO: Settings: On new plugin Show notifications to user (it was created / error)
 TODO: Settings: Remove plugin
