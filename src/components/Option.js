@@ -53,7 +53,7 @@ const OptionButton = ({ text, href, image, onClick  }) => {
 
 const OptionIcon = ({ icon, text, onClick }) => (
   <div className="component-Input__cancel" onClick={onClick}>
-    {text} <i className={icon} />
+    <h5 className="u-m-0">{text} <i className={icon} /></h5>
   </div>
 );
 

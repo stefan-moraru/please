@@ -7,9 +7,6 @@ import _ from '../services/_';
 import { OptionButton, OptionIcon, OptionInput, OptionVideo } from './Option';
 import superagentjsonp from 'superagent-jsonp';
 
-// TODO: Fix all Console warnings & errors
-// TODO: HAVE LONG MATCHES! Important for calculating match probability
-
 export default class Conversation extends Component {
   state = {
     currentPlugin: null
@@ -85,7 +82,6 @@ export default class Conversation extends Component {
     return <OptionVideo {...props} />;
   }
 
-  // TODO: Stateless components for conversation steps
   renderOption(params, option) {
     let renderedOption = null;
 
@@ -163,7 +159,7 @@ export default class Conversation extends Component {
   	}
 
 		const renderedOptionTitle = !option.title ? null : (
-			<h4 className="u-m-b-10 u-m-t-0">{option.title}</h4>
+			<h5 className="u-m-b-10 u-m-t-0">{option.title}</h5>
 		);
 
     return (
@@ -174,7 +170,7 @@ export default class Conversation extends Component {
     );
   }
 
-  renderConversationStepOptions(options, params) {
+  renderConversationStepOptions(options, params, optionsTitle) {
     let rendered = null;
 
     if (options) {
@@ -186,6 +182,7 @@ export default class Conversation extends Component {
         };
       }
 
+      options = Object.keys(options).map(key => options[key]);
 			options = _.sortOptions(options);
 
       rendered = options.map(option => {
@@ -193,8 +190,11 @@ export default class Conversation extends Component {
       });
     }
 
+    const title = optionsTitle ? <h4 className="u-m-0 u-m-b-15">{optionsTitle}</h4> : null;
+
     return (
       <div className="component-Conversation__step__options">
+        {title}
         {rendered}
       </div>
     );
@@ -212,12 +212,11 @@ export default class Conversation extends Component {
 
     if (step) {
       contentText = step.text ? this.renderConversationStepText(step.text, params) : null;
-      contentOptions = step.options ? this.renderConversationStepOptions(step.options, params) : null;
+      contentOptions = step.options ? this.renderConversationStepOptions(step.options, params, step.optionsTitle) : null;
 
       if (step.query && !step.queryDone && !fromHistory) {
         const query = step.query;
 
-        // TODO: Move this to _
         request[query.method.toLowerCase()](query.url)
         .use(superagentjsonp({
           timeout: 10000
@@ -231,7 +230,6 @@ export default class Conversation extends Component {
           return this.updateParamFromQuery(query.fill.replace(/[{}]/g, ''), _get(data, query.responsePath), this.state.currentPlugin, stepKey);
         }, (error) => {
           console.error(error);
-          // TODO: Failsafe
         })
       }
     }

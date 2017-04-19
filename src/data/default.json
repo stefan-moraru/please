@@ -1,0 +1,212 @@
+{
+  "pluginMatchProbabilityThreshold": 0.3,
+  "plugins": {
+    "movies": {
+      "title": "I <3 Movies",
+			"description": "Movie offers you can't refuse",
+      "image": "http://icons.iconarchive.com/icons/designbolts/free-multimedia/1024/Clapper-icon.png",
+      "match": {
+        "i want to watch a movie like {movie}": {
+          "step": "recommendations1",
+          "extraMatches": [
+            "watch a movie like {movie}",
+            "recomment me a movie like {movie}"
+          ]
+        }
+      },
+      "conversation": {
+        "recommendations1": {
+          "text": "Show me the money!",
+          "jumpToStep": "recommendations2",
+          "jumpToStepDelay": 2000
+        },
+        "recommendations2": {
+          "text": "Let's find some good movies for you",
+          "jumpToStep": "recommendations3",
+          "jumpToStepDelay": 2500
+        },
+        "recommendations3": {
+          "text": "So you want something like {movie}. Let's see what I can find",
+          "jumpToStep": "recommendations4",
+          "jumpToStepDelay": 3000
+        },
+        "recommendations4": {
+          "text": "Heya"
+        }
+      },
+      "examples": [
+        "i want to watch a movie like fightclub",
+        "recommend me a movie like godfather"
+      ]
+    },
+    "food": {
+      "title": "All about food",
+			"description": "Recommending you recipes and helping you to cook",
+      "image": "https://cdn0.iconfinder.com/data/icons/kameleon-free-pack-rounded/110/Food-Dome-512.png",
+      "examples": [
+        "food like pasta",
+        "i want to eat something like meatloaf",
+        "i am hungry for chips",
+        "need help cooking some pancakes"
+      ],
+      "match": {
+        "food like {food}": {
+          "step": "initial",
+          "extraMatches": [
+            "i want to eat something like {food}",
+            "i am hungry for {food}",
+            "snack like {food}"
+          ]
+        },
+        "need help cooking some {food}": {
+          "step": "helpcooking"
+        }
+      },
+      "conversation": {
+        "initial": {
+          "text": "Hello, dear hungry friend!",
+          "jumpToStep": "search",
+          "jumpToStepDelay": 1000
+        },
+        "helpcooking": {
+          "text": "Amazing! Do you need help cooking it?",
+          "query": {
+          	"url": "https://www.googleapis.com/youtube/v3/search?part=snippet&key=AIzaSyDScKGu3VK7x27dk0E4bmdiSmP9dsC-cLU&maxResults=5&type=video",
+            "method": "GET",
+            "params": "q=how+to+cook+{food}",
+            "fill": "{videoCookingTutorials}",
+            "responsePath": "items"
+          },
+					"optionsTitle": "Let's see if this helps",
+          "options": {
+            "videotutorials": {
+              "title": "Video tutorials",
+              "video": {
+                "id": "id.videoId"
+              },
+							"generate": "{videoCookingTutorials}",
+              "generateLimit": 4,
+              "generateDefault": "Looks like we could not find anything",
+              "step": "done"
+            },
+            "texttutorials": {
+							"title": "Text tutorials",
+              "button": {
+                "text": "Find",
+                "href": "http://www.wikihow.com/wikiHowTo?search={food}"
+              },
+              "step": "done"
+            },
+            "recipes": {
+							"title": "Search food.com for recipes",
+              "button": {
+                "text": "Recipes",
+                "href": "http://www.food.com/search/{food}"
+              }
+            }
+          }
+        },
+        "search": {
+          "text": "I see that you are looking for {food}-like food. Amazing! We've got exactly what you need",
+          "query": {
+            "url": "http://www.recipepuppy.com/api/?callback=callback",
+            "method": "GET",
+            "params": "q={food}&limit=4",
+            "fill": "{foodRecommendations}",
+            "responsePath": "results"
+          },
+          "optionsTitle": "Have a look at what we've found",
+          "options": {
+						"generated": {
+							"title": "Recommended recipes",
+							"button": {
+								"text": "title",
+								"href": "href",
+                "image": "thumbnail"
+							},
+							"generate": "{foodRecommendations}",
+              "generateLimit": 4,
+              "generateDefault": "Looks like we could not find anything",
+							"step": "helpcooking"
+            },
+            "again": {
+              "title": "Try again with a different search option",
+              "input": {
+                "placeholder": "ex: chicken",
+                "param": "{food}"
+              },
+              "step": "search"
+            },
+            "manual": {
+              "title": "You can manually search for recipes online",
+              "button": {
+                "text": "Find recipes online",
+                "href": "www.food.com/search/{food}"
+              },
+              "step": "helpcooking"
+            }
+          }
+        },
+        "done": {
+          "text": "Thanks for eating with us!"
+        }
+      }
+    },
+    "book": {
+      "title": "Library",
+			"description": "Finding good books",
+      "examples": [
+        "i want to read a book like 978-0141329383",
+        "recommend me a book like 978-0141329383"
+      ],
+      "match": {
+        "i want to read book like {isbn}": {
+          "step": 1,
+          "extraMatches": [
+						"book {isbn}",
+						"recommend me a book like {isbn}"
+					]
+        }
+      },
+      "conversation": {
+        "1": {
+          "text": "Hello! Looks like your are trying to find something related to a book like {isbn}. One recommendation would be {recommendations#[0].Name}",
+          "query": {
+            "url": "http://localhost:8882/recommend",
+            "method": "GET",
+            "params": "q={isbn}",
+            "fill": "{recommendations}",
+            "responsePath": "Similar.Info"
+          },
+          "options": {
+            "1": {
+              "title": "From store",
+              "button": {
+                "text": "Find the exact book on Emag",
+                "href": "www.emag.ro/search/{isbn}"
+              }
+            },
+            "2": {
+              "title": "Try to find another book",
+              "input": {
+                "placeholder": "ex: 123456789",
+                "label": "Try another book",
+                "param": "{isbn}"
+              },
+              "step": 1
+            },
+						"4": {
+							"button": {
+								"text": "Name",
+								"href": "Url",
+								"generate": "{recommendations}"
+							},
+							"step": 3
+						}
+          }
+        }
+      },
+      "image": "https://upload.wikimedia.org/wikipedia/commons/6/61/Book-icon-orange.png"
+    }
+  }
+}

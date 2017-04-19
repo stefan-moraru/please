@@ -2,8 +2,52 @@ import stringSimilarity from 'string-similarity';
 import request from 'superagent';
 import _get from 'lodash.get';
 import _shuffle from 'lodash.shuffle';
+import firebase from 'firebase';
 
 const GOOGLE_API_KEY = "AIzaSyDScKGu3VK7x27dk0E4bmdiSmP9dsC-cLU";
+
+const config = {
+  apiKey: "AIzaSyCu0XbFuJhRGh8dMZJHmuuV9EwsLFPRMa4",
+  authDomain: "please-1bc46.firebaseapp.com",
+  databaseURL: "https://please-1bc46.firebaseio.com",
+  projectId: "please-1bc46",
+  storageBucket: "please-1bc46.appspot.com",
+  messagingSenderId: "347066864046"
+};
+
+firebase.initializeApp(config);
+
+let provider = new firebase.auth.FacebookAuthProvider();
+
+provider.addScope('email');
+
+provider.setCustomParameters({
+  'display': 'popup'
+});
+
+const fb_onValue = (ref, cb) => {
+  ref = firebase.database().ref(ref);
+
+  ref.on('value', (snapshot) => {
+    cb(snapshot.val());
+  });
+};
+
+const fb_login = () => {
+  return firebase.auth().signInWithPopup(provider).then(function(result) {
+    // This gives you a Facebook Access Token. You can use it to access the Facebook API.
+    return {
+      profile: {
+        email: result.user.email,
+        name: result.user.displayName,
+        image: result.user.photoURL
+      },
+      token: result.credential.accessToken
+    };
+  }).catch(function(error) {
+    console.error(error);
+  });
+};
 
 const removeHTMLEntities = (string = '') => {
   string = string.replace(/&amp;/g, '&');
@@ -54,8 +98,6 @@ const infoFromKnowledgeGraph = (ids, query) => {
   });
 };
 
-//TODO: Handle empty params (replacing them results in undefined sometimes, or they remain as {imdb})
-
 const examplesFromPlugins = (plugins) => {
   let examples = null;
 
@@ -89,7 +131,6 @@ const substituteParamInString = (name, value, string = '') => {
           word = word.replace(/#.*}/g, '}');
         }
 
-        // TODO: Support other types of params, like objects, arrays
         word = word.replace(new RegExp(`{${name}}`, 'g'), value);
       }
     }
@@ -140,9 +181,7 @@ const matchFromString = (match, matchKey, input, plugin, pluginName) => {
 
   const splittedText = text.split(' ');
   const paramRegExp = new RegExp(/\{(.+?)\}/, 'g');
-  // TODO: Can we improve this? It currently works just for singleword params
 
-  // TODO: Improve
   let _params = {};
 
   matchKey.split(' ')
@@ -239,7 +278,7 @@ const pluginAtStep = (plugin, option) => {
     const query = plugin.conversation[plugin.step].query;
 
     if (query) {
-      delete plugin.params[query.fill.replace(/[{}]/g, '')]; // TODO: Create function for replacing { } with null
+      delete plugin.params[query.fill.replace(/[{}]/g, '')];
     }
 	}
 
@@ -247,15 +286,20 @@ const pluginAtStep = (plugin, option) => {
 };
 
 const sortOptions = (options) => {
-  return Object.keys(options)
-  .map(key => options[key])
+  return options;
+
+  return options
   .sort((a, b) => {
+    if (a.video) return 1;
+    if (b.video) return 1;
+    if (a.image) return 1;
+    if (b.image) return 1;
     if (a.input) return 1;
     if (b.input) return 1;
     if (a.button) return 0;
     if (b.button) return 0;
-    if (a.cancel) return -1;
-    if (b.cancel) return -1;
+    if (a.icon) return -1;
+    if (b.icon) return -1;
 
     return -1;
   });
@@ -294,5 +338,7 @@ export default {
   sortOptions,
   pluginWithUpdatedParam,
   pluginWithUpdatedParamAndStep,
-  infoFromKnowledgeGraph
+  infoFromKnowledgeGraph,
+  fb_login,
+  fb_onValue
 };

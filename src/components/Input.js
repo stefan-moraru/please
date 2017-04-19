@@ -8,9 +8,6 @@ import _ from '../services/_';
 const GOOGLE_API_KEY = "AIzaSyDScKGu3VK7x27dk0E4bmdiSmP9dsC-cLU";
 const CV_URL = 'https://vision.googleapis.com/v1/images:annotate?key=' + GOOGLE_API_KEY;
 
-// TODO: Better hover css
-// TODO: Improve how the suggestions look
-
 class Input extends Component {
   state = {
     inputText: '',
@@ -199,11 +196,9 @@ class Input extends Component {
   }
 
   render() {
-    //TODO: Find even more inputs? (files? or something)
-    //TODO: https://dev.to/andraconnect/augmented-reality-in-10-lines-of-html
     const label = this.props.label ? <div className="label">{this.props.label}</div> : null;
 
-    const suggestions = (this.state.suggestionsVisible && this.props.suggestionsEnabled) ? this.renderSuggestions(this.props.suggestions) : null;
+    const suggestions = (this.state.suggestionsVisible && this.props.suggestionsEnabled && this.props.suggestions && this.props.suggestions.length > 0) ? this.renderSuggestions(this.props.suggestions) : null;
 
     const inputProps = {
       type: "text",
@@ -230,13 +225,11 @@ class Input extends Component {
       className: 'ion-images'
     };
 
-    //TODO: Conversation step (in the recipes one). Need help on how to cook it? => link spre youtube cu ?q=...
-
     const loader = !this.state.loading ? null : (
       <div className="loader"></div>
     );
 
-    const disabledClassName = this.state.loading ? 'disabled' : '';
+    const disabledClassName = (this.state.loading || this.props.disabled) ? 'disabled' : '';
 
     return (
       <div className="component-Input__container">
@@ -266,7 +259,8 @@ Input.defaultProps = {
   onInputChange: () => {},
   onInputSubmit: () => {},
   suggestionsEnabled: false,
-  imagePattern: '{category} like {name}'
+  imagePattern: '{category} like {name}',
+  disabled: false
 };
 
 export default Input;
