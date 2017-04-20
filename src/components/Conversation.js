@@ -77,16 +77,34 @@ export default class Conversation extends Component {
     });
   }
 
-  generateButton(option, params) {
+  generateButton(option, params, stepKey) {
+    let onClick = () => {};
+
+    if (!option.button.maintainStep) {
+      onClick = this.changeStep.bind(this, option);
+    }
+
+    if (option.button.fill) {
+      onClick = this.updateParamFromQuery.bind(this, option.button.fill.replace(/[{}]/g, ''), option.button.text, this.state.currentPlugin, stepKey);
+    }
+
 		const props = {
-			text: option.button.text,
+			text: _.substituteParamsInString(params, option.button.text),
 			href: _.substituteParamsInString(params, option.button.href),
       image: option.button.image,
-      onClick: option.button.maintainStep ? () => {} : this.changeStep.bind(this, option),
+      onClick: onClick,
 			params: params
 		};
 
-		return <OptionButton {...props} />;
+    let rendered = null;
+
+    if (option.button.displayOnly && !params[option.button.displayOnly.replace(/[{}]/g, '')]) {
+      rendered = null;
+    } else {
+      rendered = <OptionButton {...props} />;
+    }
+
+		return rendered;
   }
 
   generateVideo(option, params) {
@@ -98,11 +116,11 @@ export default class Conversation extends Component {
     return <OptionVideo {...props} />;
   }
 
-  renderOption(params, option) {
+  renderOption(params, option, stepKey) {
     let renderedOption = null;
 
     if (option.button) {
-			renderedOption = this.generateButton(option, params);
+			renderedOption = this.generateButton(option, params, stepKey);
     } else if (option.icon) {
 			const props = {
 				icon: option.icon,
@@ -149,8 +167,9 @@ export default class Conversation extends Component {
             newOption.button.href = _get(val, option.button.href);
             newOption.button.image = _get(val, option.button.image);
             newOption.button.maintainStep = option.button.maintainStep;
+            newOption.button.displayOnly = option.button.displayOnly;
 
-            return this.generateButton(newOption, params);
+            return this.generateButton(newOption, params, stepKey);
           } else if (option.video) {
             const newOption = Object.assign({}, option);
 
@@ -192,7 +211,7 @@ export default class Conversation extends Component {
     );
   }
 
-  renderConversationStepOptions(options, params, optionsTitle) {
+  renderConversationStepOptions(options, params, optionsTitle, stepKey) {
     let rendered = null;
 
     if (options) {
@@ -208,7 +227,7 @@ export default class Conversation extends Component {
 			options = _.sortOptions(options);
 
       rendered = options.map(option => {
-        return this.renderOption(params, option);
+        return this.renderOption(params, option, stepKey);
       });
     }
 
@@ -236,7 +255,7 @@ export default class Conversation extends Component {
     if (step) {
       contentText = step.text ? this.renderConversationStepText(step.text, step.markdown, params) : null;
       contentImage = step.image ? this.renderConversationStepImage(step.image, params) : null;
-      contentOptions = step.options ? this.renderConversationStepOptions(step.options, params, step.optionsTitle) : null;
+      contentOptions = step.options ? this.renderConversationStepOptions(step.options, params, step.optionsTitle, stepKey) : null;
 
       if (step.query && !step.queryDone && !fromHistory) {
         const query = step.query;

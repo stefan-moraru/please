@@ -76,11 +76,8 @@ class App extends Component {
 export default App;
 
 /*
-//http://tastedive.com/api/similar'
-
-TODO: Better hover css
-TODO: Demo for Particle with a plugin (emit a http event, turn on a internet button led rid)
 TODO: Move all icons/images to local files
+TODO: Demo for Particle with a plugin (emit a http event, turn on a internet button led rid)
 TODO: visit #Noun will show google maps
 TODO: Settings: It does not work without any plugins
 TODO: Settings: On new plugin Check for existing match and stuff
@@ -148,4 +145,7 @@ Suporta markdown in text la optiuni
 Suporta emoji in text la optiuni
 Suporta imagini la optiuni
 De aratat cu responsePath, ca stie sa ia ceva anume din raspuns (si geturile in general)
+De aratat ca in history, ramane aceeasi conversatie desi se schimba parametrii
+Conversastion plugin
+Spus ca delayurile sunt programatice, ca sa se simta mai tare ca o discutie
 */

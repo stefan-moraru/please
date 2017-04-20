@@ -1,12 +1,304 @@
 {
   "pluginMatchProbabilityThreshold": 0.3,
   "plugins": {
-    "movies": {
-      "name": "movies",
+    "conversation": {
+      "name": "conversation",
+      "author": "stefan.moraru7@gmail.com",
+      "title": "Conversation example",
+      "description": "Feeling a little lonely? Let me show you what I can do",
+      "image": "/images/icon.png",
+      "examples": [
+        "show me what you can do",
+        "i am feeling lonely"
+      ],
+      "match": {
+        "show me what you can do": {
+          "step": "1",
+          "extraMatches": [
+            "i am feeling lonely"
+          ]
+        }
+      },
+      "conversation": {
+        "1": {
+          "image": "/images/hello-bear.gif",
+          "jumpToStep": "2",
+          "jumpToStepDelay": 2000
+        },
+        "2": {
+          "text": "Hello, dear friend"
+        }
+      }
+    },
+    "alternative": {
+      "name": "alternative",
+      "author": "stefan.moraru7@gmail.com",
+      "title": "Software Alternatives",
+      "description": "Showing you how to find alternative software",
+      "image": "/images/plugin-alternative.png",
+      "examples": [
+        "alternative to Photoshop",
+        "software like Chrome"
+      ],
+      "match": {
+        "alternative to {program}": {
+          "step": "rec1",
+          "extraMatches": [
+            "software like {program}"
+          ]
+        }
+      },
+      "conversation": {
+        "rec1": {
+          "image": "/images/alternative-working.gif",
+          "jumpToStep": "rec2",
+          "jumpToStepDelay": 4000
+        },
+        "rec2": {
+          "text": "**Joking!** Let me help you find something similar to {program}",
+          "markdown": true,
+          "optionsTitle": "Click that button and you're golden",
+          "options": {
+            "link": {
+              "button": {
+                "text": "Similar software to {program}",
+                "href": "http://alternativeto.net/browse/search?q={program}"
+              },
+              "step": "done"
+            }
+          }
+        },
+        "rec3": {
+          "text": "Finding something similar to {program}",
+          "markdown": true,
+          "optionsTitle": "Click that button and you're golden",
+          "options": {
+            "link": {
+              "button": {
+                "text": "Similar software to {program}",
+                "href": "http://alternativeto.net/browse/search?q={program}"
+              },
+              "step": "done"
+            }
+          }
+        },
+        "done": {
+          "text": "Yay! Put it to good use",
+          "optionsTitle": "Do you need another one?",
+          "options": {
+            "another": {
+              "title": "Program name",
+              "input": {
+                "placeholder": "ex: Firefox",
+                "param": "{program}"
+              },
+              "step": "rec3"
+            },
+            "doneButton": {
+              "button": {
+                "text": "No, thanks"
+              },
+              "step": "done-done"
+            }
+          }
+        },
+        "done-done": {
+          "text": "Thanks for using this plugin! Have an amazing day!"
+        }
+      }
+    },
+    "book": {
+      "name": "book",
+      "author": "stefan.moraru7@gmail.com",
+      "title": "Library",
+      "description": "Reading everyday is healthy",
+      "image": "/images/plugin-book.png",
+      "match": {
+        "i am in the mood of reading something similar to {book}": {
+          "step": "recommendations1"
+        }
+      },
+      "examples": [
+        "i am in the mood of reading something similar to 1984"
+      ],
+      "conversation": {
+        "recommendations1": {
+          "text": "I know all about books!",
+          "markdown": true,
+          "jumpToStep": "recommendations2",
+          "jumpToStepDelay": 3000
+        },
+        "recommendations2": {
+          "text": "Want to tell you a story about how I begun?",
+          "markdown": true,
+          "jumpToStep": "recommendations3",
+          "jumpToStepDelay": 3000
+        },
+        "recommendations3": {
+          "text": "Looks like not..Well..Let's see what I find in the library for you",
+          "markdown": true,
+          "jumpToStep": "recommendations4",
+          "jumpToStepDelay": 3000
+        },
+        "recommendations4": {
+          "text": "'Be not afraid of greatness: some are born great, some achieve greatness, and some have greatness thrust upon them'. - William Shakespeare",
+          "query": {
+            "url": "https://tastedive.com/api/similar",
+            "method": "GET",
+            "params": "q=book:{book}&k=267728-Please-W515Q0LZ&type=books&limit=10&info=1",
+            "fill": "{matchingBooks}",
+            "responsePath": "Similar.Results"
+          },
+          "optionsTitle": "Books like {book}",
+          "options": {
+            "links": {
+              "button": {
+                "text": "Name",
+                "href": "wUrl",
+                "fill": "{chosenBook}"
+              },
+              "generate": "{matchingBooks}",
+              "generateLimit": 4,
+              "generateDefault": "The library was empty",
+              "step": "done"
+            },
+            "buy-emag": {
+              "button": {
+                "text": "Buy {chosenBook} from emag",
+                "href": "http://www.emag.ro/search/{chosenBook}",
+                "maintainStep": true,
+                "displayOnly": "{chosenBook}"
+              }
+            },
+            "buy-elefant": {
+              "button": {
+                "text": "Buy {chosenBook} from elefant",
+                "href": "http://www.elefant.ro/search?query={chosenBook}",
+                "maintainStep": true,
+                "displayOnly": "{chosenBook}"
+              }
+            },
+            "done": {
+              "title": "Found what you needed?",
+              "button": {
+                "text": "done"
+              },
+              "step": "done"
+            }
+          }
+        },
+        "done": {
+          "text": "Have a wonderful journey!"
+        },
+        "doneNot": {
+          "text": "The course of true love never did run smooth"
+        }
+      }
+    },
+    "game": {
+      "name": "game",
+      "author": "stefan.moraru7@gmail.com",
+      "title": "Gotta Catch 'Em All",
+			"description": "Find games you might like",
+      "image": "/images/plugin-game.png",
+      "match": {
+        "i want to play a game like {game}": {
+          "step": "recommendations1",
+          "extraMatches": [
+            "play something like {game}"
+          ]
+        },
+        "I don't know what game to play": {
+          "step": "recommendations0"
+        }
+      },
+      "examples": [
+        "play something like worms",
+        "I don't know what game to play"
+      ],
+      "conversation": {
+        "recommendations0": {
+          "optionsTitle": "Any childhood games you enjoyed?",
+          "options": {
+            "again": {
+              "title": "Game title",
+              "input": {
+                "placeholder": "ex: worms",
+                "param": "{game}"
+              },
+              "step": "recommendations1"
+            }
+          }
+        },
+        "recommendations1": {
+          "text": "Let's play a game like {game} together!",
+          "markdown": true,
+          "jumpToStep": "recommendations2",
+          "jumpToStepDelay": 2000
+        },
+        "recommendations2": {
+          "text": "Playing a short game of Commander Keen while getting your result..",
+          "query": {
+          	"url": "https://tastedive.com/api/similar",
+            "method": "GET",
+            "params": "q=game:{game}&k=267728-Please-W515Q0LZ&type=games&limit=10&info=1",
+            "fill": "{matchingGames}",
+            "responsePath": "Similar.Results"
+          },
+					"optionsTitle": "Games similar to {game}",
+          "options": {
+            "youtubevideos": {
+              "title": "Gameplays",
+              "video": {
+                "path": "yUrl"
+              },
+							"generate": "{matchingGames}",
+              "generateLimit": 4,
+              "generateDefault": "Looks like we could not find anything",
+              "step": "done"
+            },
+            "links": {
+							"title": "List of games",
+							"button": {
+								"text": "Name",
+								"href": "wUrl",
+                "maintainStep": true
+							},
+							"generate": "{matchingGames}",
+              "generateLimit": 4,
+              "generateDefault": "Looks like we could not find anything",
+              "step": "done"
+            },
+            "another": {
+              "title": "Don't see anything you would like?",
+              "button": {
+                "text": "No :("
+              },
+              "step": "doneNot"
+            },
+            "found": {
+              "title": "Do you have what to play today?",
+              "button": {
+                "text": "Yes"
+              },
+              "step": "done"
+            }
+          }
+        },
+        "done": {
+          "text": "Game over! You won! Good luck playing the new game!"
+        },
+        "doneNot": {
+          "text": "The cake was a lie!"
+        }
+      }
+    },
+    "movie": {
+      "name": "movie",
       "author": "stefan.moraru7@gmail.com",
       "title": "I <3 Movies",
 			"description": "Movie offers you can't refuse",
-      "image": "http://icons.iconarchive.com/icons/designbolts/free-multimedia/1024/Clapper-icon.png",
+      "image": "/images/plugin-movie.png",
       "match": {
         "i want to watch a movie like {movie}": {
           "step": "recommendations1",
@@ -24,7 +316,7 @@
           "jumpToStepDelay": 2000
         },
         "recommendations15": {
-          "image": "https://68.media.tumblr.com/3d1d8bb9936cbf28e6968f584e17dcd5/tumblr_nv2kw8bvQx1tq4of6o1_500.gif",
+          "image": "/images/movie-watching.gif",
           "jumpToStep": "recommendations2",
           "jumpToStepDelay": 2000
         },
@@ -150,7 +442,7 @@
       "author": "stefan.moraru7@gmail.com",
       "title": "All about food",
 			"description": "Recommending you recipes and helping you to cook",
-      "image": "https://cdn0.iconfinder.com/data/icons/kameleon-free-pack-rounded/110/Food-Dome-512.png",
+      "image": "/images/plugin-food.png",
       "examples": [
         "food like pasta",
         "i want to eat something like meatloaf",
@@ -254,6 +546,12 @@
                 "href": "www.food.com/search/{food}"
               },
               "step": "helpcooking"
+            },
+            "helpcooking1": {
+              "button": {
+                "text": "I need help on how to cook it"
+              },
+              "step": "helpcooking"
             }
           }
         },
@@ -261,64 +559,6 @@
           "text": "Thanks for eating with us!"
         }
       }
-    },
-    "book": {
-      "name": "book",
-      "author": "stefan.moraru7@gmail.com",
-      "title": "Library",
-			"description": "Finding good books",
-      "examples": [
-        "i want to read a book like 978-0141329383",
-        "recommend me a book like 978-0141329383"
-      ],
-      "match": {
-        "i want to read book like {isbn}": {
-          "step": 1,
-          "extraMatches": [
-						"book {isbn}",
-						"recommend me a book like {isbn}"
-					]
-        }
-      },
-      "conversation": {
-        "1": {
-          "text": "Hello! Looks like your are trying to find something related to a book like {isbn}. One recommendation would be {recommendations#[0].Name}",
-          "query": {
-            "url": "http://localhost:8882/recommend",
-            "method": "GET",
-            "params": "q={isbn}",
-            "fill": "{recommendations}",
-            "responsePath": "Similar.Info"
-          },
-          "options": {
-            "1": {
-              "title": "From store",
-              "button": {
-                "text": "Find the exact book on Emag",
-                "href": "www.emag.ro/search/{isbn}"
-              }
-            },
-            "2": {
-              "title": "Try to find another book",
-              "input": {
-                "placeholder": "ex: 123456789",
-                "label": "Try another book",
-                "param": "{isbn}"
-              },
-              "step": 1
-            },
-						"4": {
-							"button": {
-								"text": "Name",
-								"href": "Url",
-								"generate": "{recommendations}"
-							},
-							"step": 3
-						}
-          }
-        }
-      },
-      "image": "https://upload.wikimedia.org/wikipedia/commons/6/61/Book-icon-orange.png"
     }
   }
 }
