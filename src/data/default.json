@@ -559,6 +559,104 @@
           "text": "Thanks for eating with us!"
         }
       }
+    },
+    "band": {
+      "name": "band",
+      "author": "gabriel.stiufliuc6@gmail.com",
+      "title": "I'm rockin'!",
+			"description": "Find bands you might like",
+      "image": "/images/plugin-band.png",
+      "match": {
+        "bands similar to {band}": {
+          "step": "recommendations1",
+          "extraMatches": [
+            "gimme some {band}"
+          ]
+        },
+        "I don't know what to listen to": {
+          "step": "recommendations0"
+        }
+      },
+      "examples": [
+        "find me something like Baby",
+        "I don't know what band should I listen to"
+      ],
+      "conversation": {
+        "recommendations0": {
+          "optionsTitle": "Any teenage band you enjoyed?",
+          "options": {
+            "again": {
+              "title": "Band title",
+              "input": {
+                "placeholder": "ex: Baby",
+                "param": "{band}"
+              },
+              "step": "recommendations1"
+            }
+          }
+        },
+        "recommendations1": {
+          "text": "Let's see some matches for {band}!",
+          "markdown": true,
+          "jumpToStep": "recommendations2",
+          "jumpToStepDelay": 2000
+        },
+        "recommendations2": {
+          "text": "Searching in my collection in order to give you the best bands..",
+          "query": {
+          	"url": "https://tastedive.com/api/similar",
+            "method": "GET",
+            "params": "q={band}&k=267728-Please-W515Q0LZ&type=music&limit=10&info=1",
+            "fill": "{matchingBands}",
+            "responsePath": "Similar.Results"
+          },
+					"optionsTitle": "Bands similar to {band}",
+          "options": {
+            "youtubevideos": {
+              "title": "Bands",
+              "video": {
+                "path": "yUrl"
+              },
+							"generate": "{matchingBands}",
+              "generateLimit": 4,
+              "generateDefault": "Looks like we could not find anything",
+              "step": "done"
+            },
+            "links": {
+							"title": "List of bands",
+							"button": {
+								"text": "Name",
+								"href": "wUrl",
+                "maintainStep": true
+							},
+							"generate": "{matchingBands}",
+              "generateLimit": 4,
+              "generateDefault": "Looks like we could not find anything",
+              "step": "done"
+            },
+            "another": {
+              "title": "Don't see anything you would like?",
+              "button": {
+                "text": "No 😞"
+              },
+              "step": "doneNot"
+            },
+            "found": {
+              "title": "Do you have what to listen to today?",
+              "button": {
+                "text": "Yes"
+              },
+              "step": "done"
+            }
+          }
+        },
+        "done": {
+          "text": "Woohoo! That's everything I've got on my collection"
+        },
+        "doneNot": {
+          "image": "/images/sad-music.gif"
+        }
+      }
     }
   }
 }
