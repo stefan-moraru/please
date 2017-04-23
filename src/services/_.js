@@ -87,9 +87,9 @@ const infoFromKnowledgeGraph = (ids, query) => {
         const returned = resp.body.itemListElement[0].result;
 
         result = {
-          category: returned.description.toLowerCase(),
+          category: returned.description.split(' ').reverse()[0].toLowerCase(),
           categoryDescription: returned.detailedDescription.articleBody,
-          image: returned.image.url,
+          image: (returned.image || {}).url,
           name: returned.name.toLowerCase()
         };
       } catch(e) {

@@ -205,7 +205,8 @@
         "i want to play a game like {game}": {
           "step": "recommendations1",
           "extraMatches": [
-            "play something like {game}"
+            "play something like {game}",
+            "game like {game}"
           ]
         },
         "I don't know what game to play": {
