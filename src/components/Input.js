@@ -90,7 +90,15 @@ class Input extends Component {
       suggestion: suggestion,
       probability: stringSimilarity.compareTwoStrings(this.state.inputText, suggestion)
     }))
-    .sort((a, b) => a.probability < b.probability)
+    .sort((a, b) => {
+      if (a.probability < b.probability) {
+        return 1;
+      } else if (a.probability == b.probability) {
+        return 0;
+      } else {
+        return -1;
+      }
+    })
     .map(suggestion => (
       <div className="component-Input__suggestions__suggestion" onMouseDown={this.onInputTextChangedToValueSubmit.bind(this, suggestion.suggestion)}>
         <h3>{suggestion.suggestion}</h3>

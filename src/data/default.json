@@ -578,7 +578,7 @@
         }
       },
       "examples": [
-        "find me something like Baby",
+        "bands similar to metallica",
         "I don't know what band should I listen to"
       ],
       "conversation": {
