@@ -206,6 +206,10 @@ const matchFromString = (match, matchKey, input, plugin, pluginName) => {
 const pluginMatchesForInput = (plugins, input) => {
   let res = [];
 
+  if (!plugins) {
+    return [];
+  }
+
   Object.keys(plugins)
   .map(pluginKey => {
     const plugin = plugins[pluginKey];
@@ -231,7 +235,6 @@ const pluginMatchesForInput = (plugins, input) => {
 const bestPluginMatch = (settings, input) => {
   const plugins = settings.plugins;
 
-  console.log(input.text);
   const matches = pluginMatchesForInput(plugins, input);
   const bestPlugin = matches.sort((a, b) => {
     if (a.probability < b.probability) {
@@ -243,7 +246,9 @@ const bestPluginMatch = (settings, input) => {
 
   let currentPlugin = null;
 
-  console.log('here', bestPlugin.params);
+  if (!bestPlugin) {
+    return {};
+  }
 
   if (bestPlugin.probability >= settings.pluginMatchProbabilityThreshold) {
     currentPlugin = Object.assign({}, {
@@ -332,6 +337,10 @@ const pluginWithUpdatedParamAndStep = (plugin, stepKey, paramName, value) => {
 };
 
 const _currentStep = (plugin) => {
+  if (!plugin || (plugin && !plugin.step) || (plugin && !plugin.conversation)) {
+    return null;
+  };
+
   let ok = false;
   let step = null;
 
@@ -345,34 +354,73 @@ const _currentStep = (plugin) => {
     }
   }
 
-  return step;
+  return Object.assign({}, step, {
+    key: plugin.step
+  });
 };
 
-const _query = (step, params) => {
-  console.log('_ _query');
+const _query = (plugin, step) => {
   return new Promise((resolve, reject) => {
     const query = step.query;
-    const queryParams = substituteParamsInString(params, query.params);
-    console.log('_ _query', query);
-    console.log('_ _query url', query.url);
-    console.log('_ _query params', queryParams);
+    const queryParams = substituteParamsInString(plugin.params, query.params);
+    const queryUrl = `${query.url}?${queryParams}`;
 
-    request[query.method.toLowerCase()](query.url)
+    request[query.method.toLowerCase()](queryUrl)
     .use(superagentjsonp({
       timeout: 10000
     }))
-    .query(params)
     .then((response) => {
-      console.log(query.responsePath);
-      console.log(response.body);
-      resolve(_get(response.body, query.responsePath));
+      resolve(pluginWithUpdatedParam(plugin, step.key, query.fill.replace(/[{}]/g, ''),  _get(response.body, query.responsePath)));
     }, (error) => {
       reject(error);
     })
   });
 };
 
+const _formatStep = (step, continueBase) => {
+  if (!step) {
+    return {};
+  }
+
+  let result = {};
+
+  result.text = step.text;
+  result.markdown = step.markdown;
+  result.image = step.image;
+
+  if (step.options) {
+    result.options = Object.keys(step.options).map(optionKey => {
+      let option = step.options[optionKey];
+      let data = {};
+
+      data.title = option.title;
+      data.continue = continueBase ? `${continueBase}/${option.step}` : undefined;
+
+      return data;
+    });
+
+    //button { text href }
+    //input { placeholder param }
+    //title, step la toate
+    //generate video / button
+              /* "title": "Program name",
+              "input": {
+                "placeholder": "ex: Firefox",
+                "param": "{program}"
+              },
+              "step": "rec3" */
+  }
+
+  return result;
+};
+
+const _emptyPlugin = (plugin) => {
+	return (!plugin || (plugin && !plugin.name));
+};
+
 module.exports = {
+  _emptyPlugin,
+  _formatStep,
   _currentStep,
   _query,
   removeHTMLEntities,
