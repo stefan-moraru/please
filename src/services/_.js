@@ -6,6 +6,7 @@ const _shuffle = require('lodash.shuffle');
 const firebase = require('firebase');
 
 const GOOGLE_API_KEY = "AIzaSyDScKGu3VK7x27dk0E4bmdiSmP9dsC-cLU";
+const CV_URL = 'https://vision.googleapis.com/v1/images:annotate?key=' + GOOGLE_API_KEY;
 
 const config = {
   apiKey: "AIzaSyCu0XbFuJhRGh8dMZJHmuuV9EwsLFPRMa4",
@@ -395,7 +396,7 @@ const _formatStep = (step, params, continueBase) => {
 
   let result = {};
 
-  result.text = step.text;
+  result.text = substituteParamsInString(params, step.text);
   result.markdown = step.markdown;
   result.image = step.image;
 
@@ -510,11 +511,11 @@ const _formatStep = (step, params, continueBase) => {
 },
 "step": "rec3" */
 
-const _imageToCloudVision = (base64) => {
+const imageToCloudVision = (base64) => {
     const data = {
       requests: [{
         image: {
-          content: content
+          content: base64
         },
         features: [{
           type: 'WEB_DETECTION',
@@ -533,8 +534,6 @@ const _imageToCloudVision = (base64) => {
       .send(JSON.stringify(data))
       .end((err, resp) => {
         if (err) {
-          console.log(err);
-          this.setState({ loading: false });
           return reject(err);
         }
 
@@ -552,16 +551,13 @@ const _imageToCloudVision = (base64) => {
         }
 
         if (web) {
-          _.infoFromKnowledgeGraph(web.entityId)
+          infoFromKnowledgeGraph(web.entityId)
           .then(info => {
             resolve(Object.assign({}, info, {
               text: text
             }));
-            this.setState({ loading: false });
-            console.log('Got info from knowledge graph', info);
           })
           .catch((error) => {
-            console.log(error);
             return reject(error);
           });
         } else if (text) {
@@ -573,27 +569,25 @@ const _imageToCloudVision = (base64) => {
         } else {
           resolve(null);
         }
-
-        console.log('Cloud Vision API got ', web, text);
       });
     }).then((result) => {
       let value = '';
 
       if (result) {
-        value = _.substituteParamsInString({
+        value = substituteParamsInString({
           category: { value: result.category.replace(/\s/g, '') },
           name: { value: result.name.replace(/\s/g, '') }
-        }, this.props.imagePattern);
+        }, '{category} like {name}');
       }
 
-      res.send(value);
+      return value;
     });
 };
 
 module.exports = {
   _formatStep,
   _currentStep,
-  _imageToCloudVision,
+  imageToCloudVision,
   query,
   emptyPlugin,
   removeBrackets,

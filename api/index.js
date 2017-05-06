@@ -96,33 +96,19 @@ app.get('/api/v1/conversation/:text', (req, res) => {
 });
 
 app.post('/api/v1/conversation', (req, res) => {
-  console.log(req.files);
   if (req.files && req.files.image) {
     const img = new Buffer(req.files.image.data).toString('base64');
 
     Please.imageToCloudVision(img)
     .then((result) => {
-      console.log('woot', result);
+      return res.redirect(`/api/v1/conversation/${result}`);
     })
-
-    console.log(img);
+    .catch((error) => {
+      return res.status(503).send(`[ERROR] Unable to process request ${error}`);
+    });
+  } else {
+    return res.send(400).send('[ERROR] No images specified');
   }
-      /* const file = files[0];
-
-      let reader = new FileReader();
-
-      reader.onloadend = () => {
-        let content = event.target.result;
-
-        content = content.replace('data:image/png;base64,', '');
-        content = content.replace('data:image/jpeg;base64,', '');
-        content = content.replace('data:image/jpg;base64,', '');
-
-        this.sendFileToCloudVision(content).then(this.onInputImageChange.bind(this)).catch(e => { console.error(e); });
-      };
-
-      reader.readAsDataURL(file);
-	return pluginStep(req, res); */
 });
 
 app.get('/api/v1/plugins/', (req, res) => {
