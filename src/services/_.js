@@ -385,6 +385,7 @@ const _currentStep = (plugin) => {
   });
 };
 
+// TODO: Refactor this to multiple smaller functions
 const _formatStep = (step, params, continueBase) => {
   if (!step) {
     return {};
@@ -410,17 +411,21 @@ const _formatStep = (step, params, continueBase) => {
     		if (param && param.value && param.value.length > 0) {
     			let items = param.value;
 
-          if (option.generateReverse) {
-            items = items.reverse();
-          }
-
-    			if (option.generateLimit) {
-    				items = items.slice(0, option.generateLimit);
-    			}
+          items = option.generateReverse ? items.reverse() : items;
+  				items = option.generateLimit ? items.slice(0, option.generateLimit) : items;
 
           data.similar = items;
-        } else {
-          data.similar = [];
+
+          if (option.video) {
+            data.similar = data.similar.map(item => ({
+              video: _get(item, option.video.path)
+            }));
+          } else if (option.button) {
+            data.similar = data.similar.map(item => ({
+              url: _get(item, option.button.href),
+              text: _get(item, option.button.text)
+            }));
+          }
         }
       }
 
@@ -433,9 +438,9 @@ const _formatStep = (step, params, continueBase) => {
 
 /* "youtubevideos": {
 "title": "Bands",
-"video": {
-"path": "yUrl"
-},
+                        "video": {
+                        "path": "yUrl"
+                        },
 "generate": "{matchingBands}",
 "generateLimit": 4,
 "generateDefault": "Looks like we could not find anything",
@@ -443,11 +448,11 @@ const _formatStep = (step, params, continueBase) => {
 },
 "links": {
 "title": "List of bands",
-"button": {
-"text": "Name",
-"href": "wUrl",
-"maintainStep": true
-},
+                        "button": {
+                        "text": "Name",
+                        "href": "wUrl",
+                        "maintainStep": true
+                        },
 "generate": "{matchingBands}",
 "generateLimit": 4,
 "generateDefault": "Looks like we could not find anything",
