@@ -17,7 +17,7 @@ const init = () => {
 	});
 };
 
-const renderPluginStep = (req, res) => {
+const pluginStep = (req, res) => {
 	const text = req.params.text;
   const step = req.params.step;
   const plugin = Please.bestPluginMatch(settings, {
@@ -31,7 +31,7 @@ const renderPluginStep = (req, res) => {
 	let currentStep = Please._currentStep(plugin);
 
 	if (Please.emptyPlugin(plugin)) {
-		return res.status(404).send(`Could not find plugin for input ${text} `)
+		return res.status(404).send(`[ERROR] Could not find plugin for input ${text} `)
 	}
 
   if (currentStep && currentStep.query && !currentStep.queryDone) {
@@ -46,18 +46,50 @@ const renderPluginStep = (req, res) => {
 	.catch((error) => {
 		return res.status(503).send(error);
 	});
-}
+};
+
+const plugins = (req, res) => {
+  let plugins = [];
+
+  if (settings.plugins) {
+    plugins = Object.keys(settings.plugins).map(key => settings.plugins[key]);
+  }
+
+  return res.status(200).json(plugins);
+};
+
+const plugin = (req, res) => {
+  const name = req.params.name;
+
+  if (name && settings.plugins[name]) {
+    return res.status(200).json(settings.plugins[name]);
+  } else {
+    return res.status(404).send('[ERROR] Plugin not found');
+  }
+};
 
 app.get('/api/v1/conversation/', (req, res) => {
-	return res.status(400).send(`Input text must not be empty`);
+	return res.status(400).send('[ERROR] Input text must not be empty: /api/v1/conversation/play something like worms');
 });
 
 app.get('/api/v1/conversation/:text/:step', (req, res) => {
-	return renderPluginStep(req, res);
+	return pluginStep(req, res);
 });
 
 app.get('/api/v1/conversation/:text', (req, res) => {
-	return renderPluginStep(req, res);
+	return pluginStep(req, res);
+});
+
+app.get('/api/v1/plugins/', (req, res) => {
+  return plugins(req, res);
+});
+
+app.get('/api/v1/plugin/', (req, res) => {
+  return res.status(400).send('[ERROR] You need to specify a plugin name: /api/v1/plugin/food');
+});
+
+app.get('/api/v1/plugin/:name', (req, res) => {
+  return plugin(req, res);
 });
 
 app.listen(PORT, init);
