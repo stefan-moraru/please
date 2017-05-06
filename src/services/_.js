@@ -588,8 +588,6 @@ const _imageToCloudVision = (base64) => {
 
       res.send(value);
     });
-  }
-
 };
 
 module.exports = {
