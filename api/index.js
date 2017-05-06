@@ -30,18 +30,18 @@ const renderPluginStep = (req, res) => {
 
 	let currentStep = Please._currentStep(plugin);
 
-	if (Please._emptyPlugin(plugin)) {
+	if (Please.emptyPlugin(plugin)) {
 		return res.status(404).send(`Could not find plugin for input ${text} `)
 	}
 
   if (currentStep && currentStep.query && !currentStep.queryDone) {
-		promise = Please._query(plugin, currentStep);
+		promise = Please.query(plugin, currentStep);
 	} else {
-		promise = new Promise((resolve, reject) => { resolve(); });
+		promise = new Promise((resolve, reject) => { resolve(plugin); });
 	}
 
-	return promise.then(() => {
-	  return res.json(Please._formatStep(currentStep, `${API_URL}${req.path}`));
+	return promise.then((plugin) => {
+	  return res.status(200).json(Please._formatStep(currentStep, plugin.params, `${API_URL}${req.path}`));
 	})
 	.catch((error) => {
 		return res.status(503).send(error);

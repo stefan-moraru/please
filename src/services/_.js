@@ -336,6 +336,32 @@ const pluginWithUpdatedParamAndStep = (plugin, stepKey, paramName, value) => {
   return _plugin;
 };
 
+const emptyPlugin = (plugin) => {
+	return (!plugin || (plugin && !plugin.name));
+};
+
+const removeBrackets = (string) => {
+  return string && string.replace(/[{}]/g, '');
+};
+
+const query = (plugin, step) => {
+  return new Promise((resolve, reject) => {
+    const query = step.query;
+    const queryParams = substituteParamsInString(plugin.params, query.params);
+    const queryUrl = `${query.url}?${queryParams}`;
+
+    request[query.method.toLowerCase()](queryUrl)
+    .use(superagentjsonp({
+      timeout: 10000
+    }))
+    .then((response) => {
+      resolve(pluginWithUpdatedParam(plugin, step.key, query.fill.replace(/[{}]/g, ''),  _get(response.body, query.responsePath)));
+    }, (error) => {
+      reject(error);
+    })
+  });
+};
+
 const _currentStep = (plugin) => {
   if (!plugin || (plugin && !plugin.step) || (plugin && !plugin.conversation)) {
     return null;
@@ -359,25 +385,7 @@ const _currentStep = (plugin) => {
   });
 };
 
-const _query = (plugin, step) => {
-  return new Promise((resolve, reject) => {
-    const query = step.query;
-    const queryParams = substituteParamsInString(plugin.params, query.params);
-    const queryUrl = `${query.url}?${queryParams}`;
-
-    request[query.method.toLowerCase()](queryUrl)
-    .use(superagentjsonp({
-      timeout: 10000
-    }))
-    .then((response) => {
-      resolve(pluginWithUpdatedParam(plugin, step.key, query.fill.replace(/[{}]/g, ''),  _get(response.body, query.responsePath)));
-    }, (error) => {
-      reject(error);
-    })
-  });
-};
-
-const _formatStep = (step, continueBase) => {
+const _formatStep = (step, params, continueBase) => {
   if (!step) {
     return {};
   }
@@ -396,33 +404,73 @@ const _formatStep = (step, continueBase) => {
       data.title = option.title;
       data.continue = continueBase ? `${continueBase}/${option.step}` : undefined;
 
+      if (option.generate) {
+        const param = params[removeBrackets(option.generate)];
+
+    		if (param && param.value && param.value.length > 0) {
+    			let items = param.value;
+
+          if (option.generateReverse) {
+            items = items.reverse();
+          }
+
+    			if (option.generateLimit) {
+    				items = items.slice(0, option.generateLimit);
+    			}
+
+          data.similar = items;
+        } else {
+          data.similar = [];
+        }
+      }
+
       return data;
     });
-
-    //button { text href }
-    //input { placeholder param }
-    //title, step la toate
-    //generate video / button
-              /* "title": "Program name",
-              "input": {
-                "placeholder": "ex: Firefox",
-                "param": "{program}"
-              },
-              "step": "rec3" */
   }
 
   return result;
 };
 
-const _emptyPlugin = (plugin) => {
-	return (!plugin || (plugin && !plugin.name));
-};
+/* "youtubevideos": {
+"title": "Bands",
+"video": {
+"path": "yUrl"
+},
+"generate": "{matchingBands}",
+"generateLimit": 4,
+"generateDefault": "Looks like we could not find anything",
+"step": "done"
+},
+"links": {
+"title": "List of bands",
+"button": {
+"text": "Name",
+"href": "wUrl",
+"maintainStep": true
+},
+"generate": "{matchingBands}",
+"generateLimit": 4,
+"generateDefault": "Looks like we could not find anything",
+"step": "done"
+}, */
+
+//button { text href }
+//input { placeholder param }
+//title, step la toate
+//generate video / button
+/* "title": "Program name",
+"input": {
+"placeholder": "ex: Firefox",
+"param": "{program}"
+},
+"step": "rec3" */
 
 module.exports = {
-  _emptyPlugin,
   _formatStep,
   _currentStep,
-  _query,
+  query,
+  emptyPlugin,
+  removeBrackets,
   removeHTMLEntities,
 	examplesFromPlugins,
 	stringWithoutArticles,
