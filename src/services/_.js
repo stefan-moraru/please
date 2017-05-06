@@ -418,15 +418,21 @@ const _formatStep = (step, params, continueBase) => {
 
           if (option.video) {
             data.similar = data.similar.map(item => ({
-              video: _get(item, option.video.path)
+              video: _get(item, option.video.path),
+              continue: data.continue
             }));
           } else if (option.button) {
             data.similar = data.similar.map(item => ({
               url: _get(item, option.button.href),
-              text: _get(item, option.button.text)
+              text: _get(item, option.button.text),
+              continue: data.continue
             }));
           }
         }
+
+        result.similar = (result.similar || []).concat(data.similar);
+
+        data.similar = undefined;
       }
 
       return data;
