@@ -1,8 +1,9 @@
-import stringSimilarity from 'string-similarity';
-import request from 'superagent';
-import _get from 'lodash.get';
-import _shuffle from 'lodash.shuffle';
-import firebase from 'firebase';
+const stringSimilarity = require('string-similarity');
+const request = require('superagent');
+const superagentjsonp = require('superagent-jsonp');
+const _get = require('lodash.get');
+const _shuffle = require('lodash.shuffle');
+const firebase = require('firebase');
 
 const GOOGLE_API_KEY = "AIzaSyDScKGu3VK7x27dk0E4bmdiSmP9dsC-cLU";
 
@@ -229,6 +230,8 @@ const pluginMatchesForInput = (plugins, input) => {
 
 const bestPluginMatch = (settings, input) => {
   const plugins = settings.plugins;
+
+  console.log(input.text);
   const matches = pluginMatchesForInput(plugins, input);
   const bestPlugin = matches.sort((a, b) => {
     if (a.probability < b.probability) {
@@ -240,8 +243,7 @@ const bestPluginMatch = (settings, input) => {
 
   let currentPlugin = null;
 
-  console.log('Got list of matches', matches);
-  console.log(bestPlugin);
+  console.log('here', bestPlugin.params);
 
   if (bestPlugin.probability >= settings.pluginMatchProbabilityThreshold) {
     currentPlugin = Object.assign({}, {
@@ -329,7 +331,50 @@ const pluginWithUpdatedParamAndStep = (plugin, stepKey, paramName, value) => {
   return _plugin;
 };
 
-export default {
+const _currentStep = (plugin) => {
+  let ok = false;
+  let step = null;
+
+  while (ok === false) {
+    step = plugin.conversation[plugin.step];
+
+    if (step && step.jumpToStep) {
+      plugin.step = step.jumpToStep;
+    } else {
+      ok = true;
+    }
+  }
+
+  return step;
+};
+
+const _query = (step, params) => {
+  console.log('_ _query');
+  return new Promise((resolve, reject) => {
+    const query = step.query;
+    const queryParams = substituteParamsInString(params, query.params);
+    console.log('_ _query', query);
+    console.log('_ _query url', query.url);
+    console.log('_ _query params', queryParams);
+
+    request[query.method.toLowerCase()](query.url)
+    .use(superagentjsonp({
+      timeout: 10000
+    }))
+    .query(params)
+    .then((response) => {
+      console.log(query.responsePath);
+      console.log(response.body);
+      resolve(_get(response.body, query.responsePath));
+    }, (error) => {
+      reject(error);
+    })
+  });
+};
+
+module.exports = {
+  _currentStep,
+  _query,
   removeHTMLEntities,
 	examplesFromPlugins,
 	stringWithoutArticles,
