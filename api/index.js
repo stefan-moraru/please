@@ -1,5 +1,6 @@
 const express = require('express');
 const Please = require('../src/services/_.js');
+const fileUpload = require('express-fileupload');
 const app = express();
 const PORT = 5000;
 const API_URL = 'http://api.please.com:5000';
@@ -84,16 +85,44 @@ app.use(function(req, res, next) {
   next();
 });
 
+app.use(fileUpload());
+
 app.get('/api/v1/conversation/', (req, res) => {
 	return res.status(400).send('[ERROR] Input text must not be empty: /api/v1/conversation/play something like worms');
 });
 
-app.get('/api/v1/conversation/:text/:step', (req, res) => {
+app.get('/api/v1/conversation/:text', (req, res) => {
 	return pluginStep(req, res);
 });
 
-app.get('/api/v1/conversation/:text', (req, res) => {
-	return pluginStep(req, res);
+app.post('/api/v1/conversation', (req, res) => {
+  console.log(req.files);
+  if (req.files && req.files.image) {
+    const img = new Buffer(req.files.image.data).toString('base64');
+
+    Please.imageToCloudVision(img)
+    .then((result) => {
+      console.log('woot', result);
+    })
+
+    console.log(img);
+  }
+      /* const file = files[0];
+
+      let reader = new FileReader();
+
+      reader.onloadend = () => {
+        let content = event.target.result;
+
+        content = content.replace('data:image/png;base64,', '');
+        content = content.replace('data:image/jpeg;base64,', '');
+        content = content.replace('data:image/jpg;base64,', '');
+
+        this.sendFileToCloudVision(content).then(this.onInputImageChange.bind(this)).catch(e => { console.error(e); });
+      };
+
+      reader.readAsDataURL(file);
+	return pluginStep(req, res); */
 });
 
 app.get('/api/v1/plugins/', (req, res) => {

@@ -510,9 +510,92 @@ const _formatStep = (step, params, continueBase) => {
 },
 "step": "rec3" */
 
+const _imageToCloudVision = (base64) => {
+    const data = {
+      requests: [{
+        image: {
+          content: content
+        },
+        features: [{
+          type: 'WEB_DETECTION',
+          maxResults: 1
+        }, {
+          type: 'TEXT_DETECTION',
+          maxResults: 1
+        }]
+      }]
+    };
+
+    return new Promise((resolve, reject) => {
+      request
+      .post(CV_URL)
+      .set('Content-Type', 'application/json')
+      .send(JSON.stringify(data))
+      .end((err, resp) => {
+        if (err) {
+          console.log(err);
+          this.setState({ loading: false });
+          return reject(err);
+        }
+
+        const response = resp.body.responses[0];
+
+        let web = null;
+        let text = null;
+
+        if (response.webDetection) {
+          web = response.webDetection.webEntities[0];
+        }
+
+        if (response.textAnnotations) {
+          text = response.textAnnotations[0].description;
+        }
+
+        if (web) {
+          _.infoFromKnowledgeGraph(web.entityId)
+          .then(info => {
+            resolve(Object.assign({}, info, {
+              text: text
+            }));
+            this.setState({ loading: false });
+            console.log('Got info from knowledge graph', info);
+          })
+          .catch((error) => {
+            console.log(error);
+            return reject(error);
+          });
+        } else if (text) {
+          resolve({
+            text: text
+          });
+
+          this.setState({ loading: false });
+        } else {
+          resolve(null);
+        }
+
+        console.log('Cloud Vision API got ', web, text);
+      });
+    }).then((result) => {
+      let value = '';
+
+      if (result) {
+        value = _.substituteParamsInString({
+          category: { value: result.category.replace(/\s/g, '') },
+          name: { value: result.name.replace(/\s/g, '') }
+        }, this.props.imagePattern);
+      }
+
+      res.send(value);
+    });
+  }
+
+};
+
 module.exports = {
   _formatStep,
   _currentStep,
+  _imageToCloudVision,
   query,
   emptyPlugin,
   removeBrackets,
