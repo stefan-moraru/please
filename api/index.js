@@ -68,6 +68,12 @@ const plugin = (req, res) => {
   }
 };
 
+app.use(function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  next();
+});
+
 app.get('/api/v1/conversation/', (req, res) => {
 	return res.status(400).send('[ERROR] Input text must not be empty: /api/v1/conversation/play something like worms');
 });
