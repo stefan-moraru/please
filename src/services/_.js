@@ -386,6 +386,8 @@ const _currentStep = (plugin) => {
 };
 
 // TODO: Refactor this to multiple smaller functions
+// TODO: Image input
+// TODO: Fill from buttons (as separate URL param :/);
 const _formatStep = (step, params, continueBase) => {
   if (!step) {
     return {};
@@ -397,13 +399,36 @@ const _formatStep = (step, params, continueBase) => {
   result.markdown = step.markdown;
   result.image = step.image;
 
+  //TODO: Remove from the options list if it was generated
+
   if (step.options) {
     result.options = Object.keys(step.options).map(optionKey => {
       let option = step.options[optionKey];
-      let data = {};
 
-      data.title = option.title;
-      data.continue = continueBase ? `${continueBase}/${option.step}` : undefined;
+      if (option.button && option.button.displayOnly) {
+        if (!params[removeBrackets(option.button.displayOnly)]) {
+          return undefined;
+        }
+      }
+
+      let data = {};
+      let nextStep = option.step;
+
+      data.title = substituteParamsInString(params, option.title);
+
+      data.continue = continueBase ? `${continueBase}?step=${nextStep}` : undefined;
+
+      if (option.button) {
+        data.url = encodeURI(substituteParamsInString(params, option.button.href));
+        if (!data.url.length > 0) {
+          data.url = undefined;
+        }
+        data.title = substituteParamsInString(params, option.button.text);
+
+        if (option.button.maintainStep) {
+          data.continue = undefined;
+        }
+      }
 
       if (option.generate) {
         const param = params[removeBrackets(option.generate)];
@@ -422,21 +447,30 @@ const _formatStep = (step, params, continueBase) => {
               continue: data.continue
             }));
           } else if (option.button) {
-            data.similar = data.similar.map(item => ({
-              url: _get(item, option.button.href),
-              text: _get(item, option.button.text),
-              continue: data.continue
-            }));
+            data.similar = data.similar.map(item => {
+              let continueURL = data.continue;
+
+              if (option.button.fill) {
+                continueURL = `${continueBase}?step=${step.key}&fillParam=${encodeURIComponent(removeBrackets(option.button.fill))}&fillValue=${encodeURIComponent(_get(item, option.button.text))}`;
+              }
+
+              return {
+                url: _get(item, option.button.href),
+                text: _get(item, option.button.text),
+                continue: continueURL
+              };
+            });
           }
         }
 
         result.similar = (result.similar || []).concat(data.similar);
 
         data.similar = undefined;
+        data = null;
       }
 
       return data;
-    });
+    }).filter(x => x);
   }
 
   return result;

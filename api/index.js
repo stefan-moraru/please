@@ -19,7 +19,9 @@ const init = () => {
 
 const pluginStep = (req, res) => {
 	const text = req.params.text;
-  const step = req.params.step;
+  const step = req.query && req.query.step;
+  const fillParam = req.query && decodeURIComponent(req.query.fillParam);
+  const fillValue = req.query && decodeURIComponent(req.query.fillValue);
   const plugin = Please.bestPluginMatch(settings, {
 		text: text
 	});
@@ -41,6 +43,14 @@ const pluginStep = (req, res) => {
 	}
 
 	return promise.then((plugin) => {
+    if (fillParam && fillValue) {
+      plugin.params = (plugin.params || {});
+      plugin.params[fillParam] = {
+        value: fillValue,
+        name: fillParam
+      };
+    }
+
 	  return res.status(200).json(Please._formatStep(currentStep, plugin.params, `${API_URL}${req.path}`));
 	})
 	.catch((error) => {
